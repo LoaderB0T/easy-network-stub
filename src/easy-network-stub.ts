@@ -119,29 +119,30 @@ export class EasyNetworkStub {
         response = JSON.stringify(response);
       }
 
-      console.groupCollapsed('[stub]' + stub.method + ' - ' + stub.regx.source);
-      console.groupCollapsed('request');
-      console.log('url: ' + req.url);
-      console.groupCollapsed('headers');
-      console.log(req.headers);
-      console.groupEnd();
-      console.groupCollapsed('body');
-      console.log(req.body);
-      console.groupEnd();
-      console.groupCollapsed('parsedBody');
-      console.log(parsedBody);
-      console.groupEnd();
-      console.groupEnd();
-      console.groupCollapsed('response');
-      console.groupCollapsed('body');
-      console.log(response);
-      console.groupEnd();
-      console.groupCollapsed('headers');
-      console.log(headers);
-      console.groupEnd();
-      console.groupEnd();
-      console.groupEnd();
-
+      if (config.logLevel === 'debug') {
+        console.groupCollapsed('[stub]' + stub.method + ' - ' + stub.regx.source);
+        console.groupCollapsed('request');
+        console.log('url: ' + req.url);
+        console.groupCollapsed('headers');
+        console.log(req.headers);
+        console.groupEnd();
+        console.groupCollapsed('body');
+        console.log(req.body);
+        console.groupEnd();
+        console.groupCollapsed('parsedBody');
+        console.log(parsedBody);
+        console.groupEnd();
+        console.groupEnd();
+        console.groupCollapsed('response');
+        console.groupCollapsed('body');
+        console.log(response);
+        console.groupEnd();
+        console.groupCollapsed('headers');
+        console.log(headers);
+        console.groupEnd();
+        console.groupEnd();
+        console.groupEnd();
+      }
       req.reply({ statusCode: 200, body: response, headers });
 
       return response;
