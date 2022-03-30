@@ -1,0 +1,16 @@
+{
+  "name": "easy-network-stub",
+  "version": "0.0.2",
+  "main": "lib/index.js",
+  "repository": "https://github.com/LoaderB0T/easy-network-stub.git",
+  "author": "Janik Schumacher",
+  "license": "MIT",
+  "prettier": "@awdware/prettier-config",
+  "devDependencies": {
+    "@awdware/prettier-config": "^0.0.2",
+    "@types/node": "^16.0.0",
+    "prettier": "^2.5.1",
+    "ts-node": "^10.1.0",
+    "typescript": "~4.6.3"
+  }
+}
