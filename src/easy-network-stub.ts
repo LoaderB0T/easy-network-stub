@@ -100,6 +100,7 @@ export class EasyNetworkStub {
       try {
         response = await stub.response(parsedBody, paramMap);
       } catch (e: any) {
+        console.error(e);
         const error = e as ErrorResponse<any>;
         const errorContent = typeof error.content !== 'object' ? JSON.stringify(error) : error.content;
         let errorHeaders = { ...headers };
