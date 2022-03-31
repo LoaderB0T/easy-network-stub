@@ -33,8 +33,8 @@ export class EasyNetworkStub {
   /**
    * Call this in your beforeEach hook to start using the stub.
    */
-  protected initInternal(config: InitConfig): void {
-    config.interceptor(this._urlMatch, async req => {
+  protected initInternal<T>(config: InitConfig<T>): T {
+    return config.interceptor(this._urlMatch, async req => {
       req.url = req.url.toLowerCase();
 
       if (req.method.toUpperCase() === 'OPTIONS') {
