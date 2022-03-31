@@ -1,4 +1,6 @@
 [![npm](https://img.shields.io/npm/v/easy-network-stub?color=%2300d26a&style=for-the-badge)](https://www.npmjs.com/package/easy-network-stub)
+[![LGTM Grade](https://img.shields.io/lgtm/grade/javascript/github/LoaderB0T/easy-network-stub?label=Code%20Quality&style=for-the-badge)](https://lgtm.com/projects/g/LoaderB0T/easy-network-stub/?mode=list)
+[![LGTM Alerts](https://img.shields.io/lgtm/alerts/github/LoaderB0T/easy-network-stub?style=for-the-badge)](https://lgtm.com/projects/g/LoaderB0T/easy-network-stub/?mode=list)
 
 # easy-network-stub
 
