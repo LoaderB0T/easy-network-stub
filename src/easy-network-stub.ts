@@ -15,6 +15,7 @@ export class EasyNetworkStub {
   private readonly _urlMatch: string | RegExp;
   private readonly _parameterTypes: ParameterType[] = [];
   private _errorLogger: (error: ErrorLog) => void;
+  private _failer: (error: string | Error) => void;
 
   /**
    * A class to intercept and stub all calls to a certain api path.
@@ -37,6 +38,7 @@ export class EasyNetworkStub {
    * Call this in your beforeEach hook to start using the stub.
    */
   protected initInternal<T>(config: InitConfig<T>): T {
+    this._failer = config.failer;
     this._errorLogger =
       config.errorLogger ??
       (error => {
@@ -71,7 +73,7 @@ export class EasyNetworkStub {
           stack: new Error().stack
         });
         req.destroy();
-        config.failer('Route not mocked: ' + req.url);
+        this._failer('Route not mocked: ' + req.url);
         return;
       }
 
