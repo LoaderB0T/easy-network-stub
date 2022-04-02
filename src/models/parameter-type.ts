@@ -1,3 +1,5 @@
+export type ParamPrefix = '' | '\\?' | '&' | '/';
+
 export type ParamMatcher = `(${string})`;
 
 export type ParamType = 'route' | 'query';

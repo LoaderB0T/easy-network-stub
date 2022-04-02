@@ -3,7 +3,7 @@ import { ErrorLog } from './models/error-log';
 import { ErrorResponse } from './models/error-response';
 import { HttpMethod } from './models/http-method';
 import { InitConfig } from './models/init-config';
-import { ParameterType, ParamMatcher, ParamType } from './models/parameter-type';
+import { ParameterType, ParamMatcher, ParamType, ParamPrefix } from './models/parameter-type';
 import { Request } from './models/request';
 import { RouteParam } from './models/route-param';
 import { RouteParams } from './models/route-params';
@@ -185,38 +185,7 @@ export class EasyNetworkStub {
   public stub<Route extends string>(method: HttpMethod, route: Route, response: RouteResponseCallback<Route>): void {
     const segments = route.split(/(?=[\/?&])/);
     const params: RouteParam[] = [];
-    const rgxString =
-      segments
-        .map(segment => {
-          let prefix = segment.charAt(0);
-          if (prefix === '/' || prefix === '&' || prefix === '?') {
-            segment = segment.substring(1);
-          } else {
-            prefix = '';
-          }
-          const paramType: ParamType = prefix === '/' || prefix === '' ? 'route' : 'query';
-          if (prefix === '?') {
-            prefix = `\\${prefix}`;
-          }
-          const paramMatch = segment.match(/{(\w+)([:]\w+)?}/);
-          if (paramMatch) {
-            const paramName = paramMatch[1];
-            if (paramName) {
-              const paramValueType = paramMatch[2]?.substring(1) ?? 'string';
-              params.push({ name: paramName, type: paramValueType });
-              const knownParameter = this._parameterTypes.find(x => x.name === paramValueType && x.type === paramType);
-              if (knownParameter) {
-                return (
-                  prefix + (paramType === 'route' ? knownParameter.matcher : `${paramName}(?:=(?:${knownParameter.matcher})?)?`)
-                );
-              }
-            }
-            return prefix + (paramType === 'route' ? '(\\w+)' : '\\w+=(\\w+)');
-          } else {
-            return prefix + segment;
-          }
-        })
-        .join('') + '/?$';
+    const rgxString = this.buildStubRegex(segments, params);
 
     const regx = new RegExp(rgxString, 'i');
 
@@ -226,5 +195,50 @@ export class EasyNetworkStub {
       params,
       method
     });
+  }
+
+  private buildStubRegex(segments: string[], params: RouteParam[]) {
+    return (
+      segments
+        .map(segment => {
+          return this.buildStubRegexForSegment(segment, params);
+        })
+        .join('') + '/?$'
+    );
+  }
+
+  private buildStubRegexForSegment(rawSegment: string, params: RouteParam[]) {
+    const { prefix, segment } = this.removePrefixIfExists(rawSegment);
+    const paramType: ParamType = prefix === '/' || prefix === '' ? 'route' : 'query';
+
+    const paramMatch = segment.match(/{(\w+)([:]\w+)?}/);
+    if (paramMatch) {
+      const paramName = paramMatch[1];
+      if (paramName) {
+        const paramValueType = paramMatch[2]?.substring(1) ?? 'string';
+        params.push({ name: paramName, type: paramValueType });
+        const knownParameter = this._parameterTypes.find(x => x.name === paramValueType && x.type === paramType);
+        if (knownParameter) {
+          return prefix + (paramType === 'route' ? knownParameter.matcher : `${paramName}(?:=(?:${knownParameter.matcher})?)?`);
+        }
+      }
+      return prefix + (paramType === 'route' ? '(\\w+)' : '\\w+=(\\w+)');
+    } else {
+      return prefix + segment;
+    }
+  }
+
+  private removePrefixIfExists(segment: string): { prefix: ParamPrefix; segment: string } {
+    let prefix = segment.charAt(0);
+
+    if (prefix === '/' || prefix === '&' || prefix === '?') {
+      segment = segment.substring(1);
+      if (prefix === '?') {
+        prefix = `\\?`;
+      }
+    } else {
+      prefix = '';
+    }
+    return { prefix: prefix as ParamPrefix, segment };
   }
 }
