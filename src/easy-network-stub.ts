@@ -1,4 +1,5 @@
 import { headers, preflightHeaders } from './consts/headers';
+import { ErrorLog } from './models/error-log';
 import { ErrorResponse } from './models/error-response';
 import { HttpMethod } from './models/http-method';
 import { InitConfig } from './models/init-config';
@@ -12,6 +13,7 @@ export class EasyNetworkStub {
   private readonly _stubs: Stub<any>[] = [];
   private readonly _urlMatch: string | RegExp;
   private readonly _parameterTypes: ParameterType[] = [];
+  private _errorLogger: (error: ErrorLog) => void;
 
   /**
    * A class to intercept and stub all calls to a certain api path.
@@ -34,6 +36,20 @@ export class EasyNetworkStub {
    * Call this in your beforeEach hook to start using the stub.
    */
   protected initInternal<T>(config: InitConfig<T>): T {
+    this._errorLogger =
+      config.errorLogger ??
+      (error => {
+        console.error(error.message);
+        console.groupCollapsed('Mocking info');
+        console.groupCollapsed('Request');
+        console.log(error.request);
+        console.groupEnd();
+        console.groupCollapsed('Mocks');
+        console.log(error.registeredStubs);
+        console.groupEnd();
+        console.groupEnd();
+      });
+
     return config.interceptor(this._urlMatch, async req => {
       req.url = req.url.toLowerCase();
 
@@ -45,15 +61,14 @@ export class EasyNetworkStub {
       const stub = this._stubs.find(x => req.url.match(x.regx) && x.method === req.method);
 
       if (!stub) {
-        console.error('Route not mocked');
-        console.groupCollapsed('Mocking info');
-        console.groupCollapsed('Request');
-        console.log(req);
-        console.groupEnd();
-        console.groupCollapsed('Mocks');
-        console.log(this._stubs);
-        console.groupEnd();
-        console.groupEnd();
+        this._errorLogger({
+          message: `Route not mocked: [${req.method}] ${req.url}`,
+          method: req.method,
+          request: req,
+          registeredStubs: this._stubs,
+          url: req.url,
+          stack: new Error().stack
+        });
         req.destroy();
         config.failer('Route not mocked: ' + req.url);
         return;
@@ -100,7 +115,17 @@ export class EasyNetworkStub {
       try {
         response = await stub.response(parsedBody, paramMap);
       } catch (e: any) {
-        console.error(e);
+        this._errorLogger({
+          message:
+            `Error while trying to get the response from the stub: [${stub.method}] (${stub.regx.source}) for '${req.url}'\n` +
+            `msg: ${e.message}\n` +
+            'This is most likely a bug in your stub.',
+          method: req.method,
+          request: req,
+          registeredStubs: this._stubs,
+          url: req.url,
+          stack: e.stack ?? new Error().stack
+        });
         const error = e as ErrorResponse<any>;
         const errorContent = typeof error.content !== 'object' ? JSON.stringify(error) : error.content;
         let errorHeaders = { ...headers };
@@ -118,31 +143,6 @@ export class EasyNetworkStub {
       if (typeof response !== 'object') {
         // Because strings or other primitive types also get parsed with JSON.parse, we need to strigify them here first
         response = JSON.stringify(response);
-      }
-
-      if (config.logLevel === 'debug') {
-        console.groupCollapsed('[stub]' + stub.method + ' - ' + stub.regx.source);
-        console.groupCollapsed('request');
-        console.log('url: ' + req.url);
-        console.groupCollapsed('headers');
-        console.log(req.headers);
-        console.groupEnd();
-        console.groupCollapsed('body');
-        console.log(req.body);
-        console.groupEnd();
-        console.groupCollapsed('parsedBody');
-        console.log(parsedBody);
-        console.groupEnd();
-        console.groupEnd();
-        console.groupCollapsed('response');
-        console.groupCollapsed('body');
-        console.log(response);
-        console.groupEnd();
-        console.groupCollapsed('headers');
-        console.log(headers);
-        console.groupEnd();
-        console.groupEnd();
-        console.groupEnd();
       }
       req.reply({ statusCode: 200, body: response, headers });
 
