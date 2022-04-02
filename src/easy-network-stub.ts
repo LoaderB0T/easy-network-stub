@@ -4,6 +4,7 @@ import { ErrorResponse } from './models/error-response';
 import { HttpMethod } from './models/http-method';
 import { InitConfig } from './models/init-config';
 import { ParameterType, ParamMatcher, ParamType } from './models/parameter-type';
+import { Request } from './models/request';
 import { RouteParam } from './models/route-param';
 import { RouteParams } from './models/route-params';
 import { RouteResponseCallback } from './models/route-response-callback';
@@ -80,64 +81,14 @@ export class EasyNetworkStub {
         throw new Error('The provided matcher did not match the current request');
       }
 
-      const paramMap: RouteParams = {};
-      for (let i = 0; i < stub.params.length; i++) {
-        const param = stub.params[i];
-        let paramValue: any;
+      const paramMap = this.parseRequestParameters(stub, res);
+      const parsedBody = this.parseRequestBody(req);
 
-        const knownParameter = this._parameterTypes.find(x => x.name === param.type);
-        if (knownParameter) {
-          paramValue = knownParameter.parser(res[i + 1]);
-        } else {
-          paramValue = res[i + 1];
-        }
-
-        paramMap[stub.params[i].name] = paramValue;
-      }
-
-      let parsedBody: any;
-      try {
-        parsedBody = JSON.parse(req.body);
-      } catch {
-        if (req.body === 'true') {
-          parsedBody = true;
-        } else if (req.body === 'false') {
-          parsedBody = false;
-        } else if (/^\d+$/.test(req.body)) {
-          parsedBody = Number.parseInt(req.body, 10);
-        } else if (/^\d*.\d*$/.test(req.body)) {
-          parsedBody = Number.parseFloat(req.body);
-        } else {
-          parsedBody = req.body;
-        }
-      }
       let response: any;
       try {
         response = await stub.response(parsedBody, paramMap);
       } catch (e: any) {
-        this._errorLogger({
-          message:
-            `Error while trying to get the response from the stub: [${stub.method}] (${stub.regx.source}) for '${req.url}'\n` +
-            `msg: ${e.message}\n` +
-            'This is most likely a bug in your stub.',
-          method: req.method,
-          request: req,
-          registeredStubs: this._stubs,
-          url: req.url,
-          stack: e.stack ?? new Error().stack
-        });
-        const error = e as ErrorResponse<any>;
-        const errorContent = typeof error.content !== 'object' ? JSON.stringify(error) : error.content;
-        let errorHeaders = { ...headers };
-        if (error.headers) {
-          errorHeaders = { ...errorHeaders, ...error.headers };
-        }
-        if (error.statusCode) {
-          req.reply({ statusCode: error.statusCode, body: errorContent, headers: errorHeaders });
-        } else {
-          req.reply({ statusCode: 500, body: JSON.stringify(errorContent ?? 'unknown error in mocked response') });
-        }
-        return;
+        return this.logErrorAndReplyWithErrorCode<T>(stub, req, e);
       }
 
       if (typeof response !== 'object') {
@@ -148,6 +99,71 @@ export class EasyNetworkStub {
 
       return response;
     });
+  }
+
+  private logErrorAndReplyWithErrorCode<T>(stub: Stub<any>, req: Request, e: any) {
+    const error = e as ErrorResponse<any>;
+    const errorContent = typeof error.content !== 'object' ? JSON.stringify(error) : error.content;
+    let errorHeaders = { ...headers };
+    if (error.headers) {
+      errorHeaders = { ...errorHeaders, ...error.headers };
+    }
+    if (error.statusCode) {
+      // If the error has a status code, we assume that the erro is purposely thrown in the test code
+      req.reply({ statusCode: error.statusCode, body: errorContent, headers: errorHeaders });
+    } else {
+      // If the error does not have a status code, we assume that the error is caused by a bug in the test code
+      this._errorLogger({
+        message:
+          `Error while trying to get the response from the stub: [${stub.method}] (${stub.regx.source}) for '${req.url}'\n` +
+          `msg: ${e.message}\n` +
+          'This is most likely a bug in your stub. (No statusCode was provided)',
+        method: req.method,
+        request: req,
+        registeredStubs: this._stubs,
+        url: req.url,
+        stack: e.stack ?? new Error().stack
+      });
+      req.reply({ statusCode: 500, body: JSON.stringify(errorContent ?? 'unknown error in mocked response') });
+    }
+  }
+
+  private parseRequestParameters(stub: Stub<any>, res: RegExpMatchArray) {
+    const paramMap: RouteParams = {};
+    for (let i = 0; i < stub.params.length; i++) {
+      const param = stub.params[i];
+      let paramValue: any;
+
+      const knownParameter = this._parameterTypes.find(x => x.name === param.type);
+      if (knownParameter) {
+        paramValue = knownParameter.parser(res[i + 1]);
+      } else {
+        paramValue = res[i + 1];
+      }
+
+      paramMap[stub.params[i].name] = paramValue;
+    }
+    return paramMap;
+  }
+
+  private parseRequestBody(req: Request) {
+    try {
+      const parsedBody = JSON.parse(req.body);
+      return parsedBody;
+    } catch {
+      // Ignore and move on
+    }
+    if (req.body === 'true') {
+      return true;
+    } else if (req.body === 'false') {
+      return false;
+    } else if (/^\d+$/.test(req.body)) {
+      return Number.parseInt(req.body, 10);
+    } else if (/^\d*.\d*$/.test(req.body)) {
+      return Number.parseFloat(req.body);
+    } else {
+      return req.body;
+    }
   }
 
   /**
