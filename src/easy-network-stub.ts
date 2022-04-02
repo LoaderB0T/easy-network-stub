@@ -73,7 +73,7 @@ export class EasyNetworkStub {
           stack: new Error().stack
         });
         req.destroy();
-        this._failer(`Route not mocked: [${req.method}]' ${req.url}`);
+        this._failer(`Route not mocked: [${req.method}] ${req.url}`);
         return;
       }
 
