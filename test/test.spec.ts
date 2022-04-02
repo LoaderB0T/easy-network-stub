@@ -1,43 +1,33 @@
 import { EasyNetworkStub } from '../src/easy-network-stub';
-import { Request } from '../src/models/request';
 
-export class Test {
+export class Test extends EasyNetworkStub {
   init() {
     const posts = [0, 1, 2, 3, 4, 5].map(x => ({ postId: x, text: `test${x}` }));
 
     const blogStub = new EasyNetworkStub('/MyServer/api/Blog');
 
-    blogStub.init({
-      failer: (error: Error | string) => {
-        console.error(error);
-      },
-      interceptor: (baseUrl: string | RegExp, handler: (req: Request) => Promise<void>) => {
-        return Promise.resolve(); // Insert Framework code here
-      }
-    });
-
-    blogStub.stub('GET', 'posts', (body, params) => {
+    blogStub.stub('GET', 'posts', () => {
       return posts;
     });
 
-    blogStub.stub('GET', 'posts/{id:number}', (body, params) => {
+    blogStub.stub('GET', 'posts/{id:number}', ({ params }) => {
       return posts.find(x => x.postId === params.id);
     });
 
-    blogStub.stub('POST', 'posts', (body, params) => {
+    blogStub.stub('POST', 'posts', ({ body }) => {
       posts.push({ postId: body.postId, text: body.text });
     });
 
-    blogStub.stub('DELETE', 'posts/{id:number}/{id2}/{id3:number}', (body, params) => {
+    blogStub.stub('DELETE', 'posts/{id:number}/{id2}/{id3:number}', ({ params }) => {
       const idx = posts.findIndex(x => x.postId === params.id);
       posts.splice(idx, 1);
     });
-    blogStub.stub('DELETE', 'posts/{id:number}?{id2}&{id3:number}', (body, params) => {
+    blogStub.stub('DELETE', 'posts/{id:number}?{id2}&{id3:number}', ({ params }) => {
       const idx = posts.findIndex(x => x.postId === params.id);
       posts.splice(idx, 1);
     });
 
-    blogStub.stub('GET', 'test/{id:number}/{test}?{bla:number}', (body, params) => {
+    blogStub.stub('GET', 'test/{id:number}/{test}?{bla:number}', ({ params }) => {
       console.log(params);
     });
   }

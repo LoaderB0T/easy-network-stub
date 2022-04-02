@@ -88,9 +88,9 @@ export class EasyNetworkStub {
 
       let response: any;
       try {
-        response = await stub.response(parsedBody, paramMap);
+        response = await stub.response({ body: parsedBody, params: paramMap });
       } catch (e: any) {
-        return this.logErrorAndReplyWithErrorCode<T>(stub, req, e);
+        return this.logErrorAndReplyWithErrorCode(stub, req, e);
       }
 
       if (typeof response !== 'object') {
@@ -103,7 +103,7 @@ export class EasyNetworkStub {
     });
   }
 
-  private logErrorAndReplyWithErrorCode<T>(stub: Stub<any>, req: Request, e: any) {
+  private logErrorAndReplyWithErrorCode(stub: Stub<any>, req: Request, e: any) {
     const error = e as ErrorResponse<any>;
     const errorContent = typeof error.content !== 'object' ? JSON.stringify(error) : error.content;
     let errorHeaders = { ...headers };
