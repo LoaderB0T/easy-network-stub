@@ -1,34 +1,72 @@
-import { EasyNetworkStub } from '../src/easy-network-stub';
+import { FakeNetworkIntercept } from './fake-network-intercept';
+import { parseFetch } from './parse-fetch';
+import { TestEasyNetworkStub } from './test-easy-network-stub';
 
-export class Test extends EasyNetworkStub {
-  init() {
-    const posts = [0, 1, 2, 3, 4, 5].map(x => ({ postId: x, text: `test${x}` }));
+describe('Easy Network Stub', () => {
+  let fakeNetwork: FakeNetworkIntercept;
+  let testEasyNetworkStub: TestEasyNetworkStub;
+  beforeEach(async () => {
+    fakeNetwork = new FakeNetworkIntercept();
+    testEasyNetworkStub = new TestEasyNetworkStub(/MyServer\/api\/Blog/);
+    await testEasyNetworkStub.init(fakeNetwork);
+  });
 
-    const blogStub = new EasyNetworkStub('/MyServer/api/Blog');
+  afterEach(() => {});
 
-    blogStub.stub('GET', 'posts', () => {
-      return posts;
+  test('String param', async () => {
+    testEasyNetworkStub.stub('GET', 'posts/{id:string}', ({ params }) => {
+      return { id: params.id };
     });
+    const response = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/1' });
+    expect(response.id).toBe('1');
+    const response2 = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/abc' });
+    expect(response2.id).toBe('abc');
+    const response3 = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/true' });
+    expect(response3.id).toBe('true');
+    const response4 = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/false' });
+    expect(response4.id).toBe('false');
+  });
 
-    blogStub.stub('GET', 'posts/{id:number}', ({ params }) => {
-      return posts.find(x => x.postId === params.id);
+  test('Number param', async () => {
+    testEasyNetworkStub.stub('GET', 'posts/{id:number}', ({ params }) => {
+      return { id: params.id };
     });
+    const response = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/1' });
+    expect(response.id).toBe(1);
+    const response2 = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/648354' });
+    expect(response2.id).toBe(648354);
+    // String in param will fail
+    await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/12a' }).catch(e => e);
+    expect(testEasyNetworkStub.lastError.message).toBe('Route not mocked: [GET] myserver/api/blog/posts/12a');
+  });
 
-    blogStub.stub('POST', 'posts', ({ body }) => {
-      posts.push({ postId: body.postId, text: body.text });
+  test('Boolean param', async () => {
+    testEasyNetworkStub.stub('GET', 'posts/{yes:boolean}', ({ params }) => {
+      return { yes: params.yes };
     });
+    const response = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/true' });
+    expect(response.yes).toBe(true);
+    const response2 = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/false' });
+    expect(response2.yes).toBe(false);
 
-    blogStub.stub('DELETE', 'posts/{id:number}/{id2}/{id3:number}', ({ params }) => {
-      const idx = posts.findIndex(x => x.postId === params.id);
-      posts.splice(idx, 1);
-    });
-    blogStub.stub('DELETE', 'posts/{id:number}?{id2}&{id3:number}', ({ params }) => {
-      const idx = posts.findIndex(x => x.postId === params.id);
-      posts.splice(idx, 1);
-    });
+    // Values other than true or false will fail
+    await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/notBool' }).catch(() => {});
+    expect(testEasyNetworkStub.lastError.message).toBe('Route not mocked: [GET] myserver/api/blog/posts/notbool');
+    expect(testEasyNetworkStub.lastError.method).toBe('GET');
+    expect(testEasyNetworkStub.lastError.registeredStubs.length).toBe(1);
+    expect(testEasyNetworkStub.lastError.request.method).toBe('GET');
+    expect(testEasyNetworkStub.lastError.url).toBe('MyServer/api/Blog/posts/notBool'.toLowerCase());
+  });
 
-    blogStub.stub('GET', 'test/{id:number}/{test}?{bla:number}', ({ params }) => {
-      console.log(params);
+  test('Query param string', async () => {
+    testEasyNetworkStub.stub('GET', 'posts/all?{filter:string}', ({ params }) => {
+      return { filter: params.filter };
     });
-  }
-}
+    const response = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all?filter=test' });
+    expect(response.filter).toBe('test');
+    const response2 = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all?filter' });
+    expect(response2.filter).toBe(undefined);
+    const response3 = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all?filter=' });
+    expect(response3.filter).toBe(undefined);
+  });
+});

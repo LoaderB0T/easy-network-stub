@@ -1,10 +1,14 @@
 import { HttpMethod } from './http-method';
+import { Response } from './response';
 
-export type Request = {
+export type RequestData = {
   url: string;
   method: HttpMethod;
   body?: any;
   headers?: { [key: string]: string | string[] };
-  reply: (reply: { statusCode: number; body?: any; headers?: any }) => void;
+};
+
+export type Request = RequestData & {
+  reply: (response: Response) => void;
   destroy: () => void;
 };
