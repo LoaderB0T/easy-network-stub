@@ -4,7 +4,7 @@ import { tryGetResponseForRequest } from './helper/handle-request/try-get-respon
 import { Config } from './models/config';
 import { HttpMethod } from './models/http-method';
 import { InitConfig } from './models/init-config';
-import { ParamMatcher, ParamType, ParamPrefix } from './models/parameter-type';
+import { ParamMatcher, ParamType } from './models/parameter-type';
 import { QueryParam } from './models/query-param';
 import { RouteParam } from './models/route-param';
 import { RouteResponseCallback } from './models/route-response-callback';

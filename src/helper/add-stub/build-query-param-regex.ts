@@ -1,6 +1,5 @@
 import { ParameterType } from '../../models/parameter-type';
 import { QueryParam } from '../../models/query-param';
-import { RouteParam } from '../../models/route-param';
 
 export const buildQueryParamRegex = (
   isOptionalParameter: boolean,
