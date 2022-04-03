@@ -70,4 +70,16 @@ describe('Query Parameters', () => {
     await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all?limit=100' }).catch(e => e);
     expect(testEasyNetworkStub.lastError.message).toBe('Route not mocked: [GET] myserver/api/blog/posts/all?limit=100');
   });
+
+  test('Optional query params', async () => {
+    testEasyNetworkStub.stub('GET', 'posts/all?{limit?:number}&{filter?}', ({ params }) => {
+      let limit = params.limit;
+      let filter = params.filter;
+
+      limit = undefined; // to validate that the type is optional
+      filter = undefined; // to validate that the type is optional
+
+      return { limit: params.limit, filter: params.filter };
+    });
+  });
 });
