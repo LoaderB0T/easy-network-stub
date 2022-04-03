@@ -28,7 +28,13 @@ type MakeOptional<T, Optional> = Optional extends true ? T | undefined : T;
 
 export type GetParam<T extends string> = T extends `${string}?${string}` ? GetParamOptional<T> : GetParamRequired<T>;
 
-type TypeConverterElemental<T extends string> = T extends 'number' ? number : T extends 'boolean' ? boolean : string;
+type TypeConverterElemental<T extends string> = T extends 'number'
+  ? number
+  : T extends 'boolean'
+  ? boolean
+  : T extends 'string'
+  ? string
+  : any;
 
 export type TypeConverter<T extends string> = T extends `${infer Type}[]`
   ? TypeConverterElemental<Type>[]
