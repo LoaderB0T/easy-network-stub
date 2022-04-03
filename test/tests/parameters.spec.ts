@@ -1,8 +1,8 @@
-import { FakeNetworkIntercept } from './fake-network-intercept';
-import { parseFetch } from './parse-fetch';
-import { TestEasyNetworkStub } from './test-easy-network-stub';
+import { FakeNetworkIntercept } from '../fake-network-intercept';
+import { parseFetch } from '../parse-fetch';
+import { TestEasyNetworkStub } from '../test-easy-network-stub';
 
-describe('Easy Network Stub', () => {
+describe('Parameters', () => {
   let fakeNetwork: FakeNetworkIntercept;
   let testEasyNetworkStub: TestEasyNetworkStub;
   beforeEach(async () => {
@@ -10,8 +10,6 @@ describe('Easy Network Stub', () => {
     testEasyNetworkStub = new TestEasyNetworkStub(/MyServer\/api\/Blog/);
     await testEasyNetworkStub.init(fakeNetwork);
   });
-
-  afterEach(() => {});
 
   test('String param', async () => {
     testEasyNetworkStub.stub('GET', 'posts/{id:string}', ({ params }) => {
@@ -56,17 +54,5 @@ describe('Easy Network Stub', () => {
     expect(testEasyNetworkStub.lastError.registeredStubs.length).toBe(1);
     expect(testEasyNetworkStub.lastError.request.method).toBe('GET');
     expect(testEasyNetworkStub.lastError.url).toBe('MyServer/api/Blog/posts/notBool'.toLowerCase());
-  });
-
-  test('Query param string', async () => {
-    testEasyNetworkStub.stub('GET', 'posts/all?{filter:string}', ({ params }) => {
-      return { filter: params.filter };
-    });
-    const response = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all?filter=test' });
-    expect(response.filter).toBe('test');
-    const response2 = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all?filter' });
-    expect(response2.filter).toBe(undefined);
-    const response3 = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all?filter=' });
-    expect(response3.filter).toBe(undefined);
   });
 });

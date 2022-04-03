@@ -7,7 +7,7 @@ import { FakeNetworkIntercept } from './fake-network-intercept';
  * Uses the FakeNetworkIntercept class to simulate network calls.
  */
 export class TestEasyNetworkStub extends EasyNetworkStub {
-  public lastError: ErrorLog;
+  public lastError: ErrorLog = { message: '', method: '', url: '', request: {}, registeredStubs: [] };
 
   /**
    * A class to intercept and stub all calls to a certain api path.
@@ -27,6 +27,7 @@ export class TestEasyNetworkStub extends EasyNetworkStub {
    * @returns A promise that resolves when the stub is ready to use.
    */
   public async init(fakeNetwork: FakeNetworkIntercept) {
+    fakeNetwork.testEasyNetworkStub = this;
     return this.initInternal({
       failer: error => {
         this.gotError(error);

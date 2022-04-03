@@ -1,5 +1,6 @@
 import { Request, RequestData } from '../src/models/request';
 import { Response } from '../src/models/response';
+import { TestEasyNetworkStub } from './test-easy-network-stub';
 
 type RequestHandler = (req: Request) => Promise<void>;
 type RequestHandlerConfig = { matcher: RegExp; requestHandler: RequestHandler };
@@ -11,6 +12,7 @@ type RequestHandlerConfig = { matcher: RegExp; requestHandler: RequestHandler };
  */
 export class FakeNetworkIntercept {
   private _requestHandlers: RequestHandlerConfig[] = [];
+  public testEasyNetworkStub: TestEasyNetworkStub;
 
   public intercept(matcher: RegExp | string, requestHandler: (req: Request) => Promise<void>) {
     if (typeof matcher === 'string') {

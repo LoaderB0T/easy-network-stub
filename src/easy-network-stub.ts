@@ -4,6 +4,7 @@ import { ErrorResponse } from './models/error-response';
 import { HttpMethod } from './models/http-method';
 import { InitConfig } from './models/init-config';
 import { ParameterType, ParamMatcher, ParamType, ParamPrefix } from './models/parameter-type';
+import { QueryParam } from './models/query-param';
 import { Request } from './models/request';
 import { RouteParam } from './models/route-param';
 import { RouteParams } from './models/route-params';
@@ -61,7 +62,11 @@ export class EasyNetworkStub {
         return;
       }
 
-      const stub = this._stubs.find(x => req.url.match(x.regx) && x.method === req.method);
+      const urlWithoutQueryParams = req.url.split('?')[0];
+
+      const stub = this._stubs
+        .filter(x => urlWithoutQueryParams.match(x.regx) && x.method === req.method)
+        .find(x => x.queryParams.every(q => req.url.match(q.regex)));
 
       if (!stub) {
         this._errorLogger({
@@ -77,13 +82,7 @@ export class EasyNetworkStub {
         return;
       }
 
-      const res = req.url.match(stub.regx);
-
-      if (!res) {
-        throw new Error('The provided matcher did not match the current request');
-      }
-
-      const paramMap = this.parseRequestParameters(stub, res);
+      const paramMap = this.parseRequestParameters(stub, req.url);
       const parsedBody = this.parseRequestBody(req);
 
       let response: any;
@@ -130,21 +129,37 @@ export class EasyNetworkStub {
     }
   }
 
-  private parseRequestParameters(stub: Stub<any>, res: RegExpMatchArray) {
-    const paramMap: RouteParams = {};
-    for (let i = 0; i < stub.params.length; i++) {
-      const param = stub.params[i];
-      let paramValue: any;
+  private parseRequestParameters(stub: Stub<any>, url: string) {
+    const urlWithoutQueryParams = url.split('?')[0];
+    const routeParamValues = urlWithoutQueryParams.match(stub.regx);
+    if (!routeParamValues) {
+      throw new Error(`Could not parse route parameters for url '${url}'`);
+    }
 
+    const paramMap: RouteParams = {};
+
+    const parseParam = (param: RouteParam | QueryParam, val: string) => {
       const knownParameter = this._parameterTypes.find(x => x.name === param.type);
       if (knownParameter) {
-        paramValue = knownParameter.parser(res[i + 1]);
+        return knownParameter.parser(val);
       } else {
-        paramValue = res[i + 1];
+        return val;
       }
+    };
 
+    for (let i = 0; i < stub.params.length; i++) {
+      const param = stub.params[i];
+      const paramValue = parseParam(param, routeParamValues[i + 1]);
       paramMap[stub.params[i].name] = paramValue;
     }
+    stub.queryParams.forEach(queryParam => {
+      const queryParamValue = url.match(queryParam.regex);
+      if (!queryParamValue) {
+        throw new Error(`Could not parse query parameter '${queryParam.name}' for url '${url}'`);
+      }
+      const paramValue = parseParam(queryParam, queryParamValue[1]);
+      paramMap[queryParam.name] = paramValue;
+    });
     return paramMap;
   }
 
@@ -187,7 +202,8 @@ export class EasyNetworkStub {
   public stub<Route extends string>(method: HttpMethod, route: Route, response: RouteResponseCallback<Route>): void {
     const segments = route.split(/(?=[\/?&])/);
     const params: RouteParam[] = [];
-    const rgxString = this.buildStubRegex(segments, params);
+    const queryParams: QueryParam[] = [];
+    const rgxString = this.buildStubRegex(segments, params, queryParams);
 
     const regx = new RegExp(rgxString, 'i');
 
@@ -195,21 +211,22 @@ export class EasyNetworkStub {
       regx,
       response,
       params,
+      queryParams,
       method
     });
   }
 
-  private buildStubRegex(segments: string[], params: RouteParam[]) {
+  private buildStubRegex(segments: string[], params: RouteParam[], queryParams: QueryParam[]) {
     return (
       segments
         .map(segment => {
-          return this.buildStubRegexForSegment(segment, params);
+          return this.buildStubRegexForSegment(segment, params, queryParams);
         })
         .join('') + '/?$'
     );
   }
 
-  private buildStubRegexForSegment(rawSegment: string, params: RouteParam[]) {
+  private buildStubRegexForSegment(rawSegment: string, params: RouteParam[], queryParams: QueryParam[]) {
     const { prefix, segment } = this.removePrefixIfExists(rawSegment);
     const paramType: ParamType = prefix === '/' || prefix === '' ? 'route' : 'query';
 
@@ -218,13 +235,35 @@ export class EasyNetworkStub {
       const paramName = paramMatch[1];
       if (paramName) {
         const paramValueType = paramMatch[2]?.substring(1) ?? 'string';
-        params.push({ name: paramName, type: paramValueType });
         const knownParameter = this._parameterTypes.find(x => x.name === paramValueType && x.type === paramType);
-        if (knownParameter) {
-          return prefix + (paramType === 'route' ? knownParameter.matcher : `${paramName}(?:=(?:${knownParameter.matcher})?)?`);
+        if (paramType === 'route') {
+          params.push({ name: paramName, type: paramValueType });
+          if (knownParameter) {
+            return `${prefix}${knownParameter.matcher}`;
+          } else {
+            return '(\\w+)';
+          }
+        } else {
+          const paramValueMatcher = knownParameter ? knownParameter.matcher : '(\\w+)';
+          queryParams.push({
+            name: paramName,
+            type: paramValueType,
+            regex: new RegExp(`[?&]${paramName}(?:=(?:${paramValueMatcher})?)?(?:$|&)`)
+          });
+          /**
+           * Query parameter regex explanation:
+           * Example: paramValueMatcher -> (true|false)
+           * Example: paramName -> yes
+           * yes(?:=(?:(true|false))?)?(?:$|&)
+           * Matches "yes=true&" "yes=true" "yes=&" "yes=" "yes"
+           *
+           * (?:$|&) Makes sure the query param has either no value
+           *   (end of url or beginning of next query param)
+           *   or a value that matches the known parameter type
+           */
+          return '';
         }
       }
-      return prefix + (paramType === 'route' ? '(\\w+)' : '\\w+=(\\w+)');
     } else {
       return prefix + segment;
     }
