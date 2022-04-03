@@ -95,7 +95,7 @@ export class EasyNetworkStub {
    * @param response The callback in which you can process the request and reply with the stub. When a Promise is returned, the stub response will be delayed until it is resolved.
    */
   public stub<Route extends string>(method: HttpMethod, route: Route, response: RouteResponseCallback<Route>): void {
-    const segments = route.split(/(?=[\/?&])(?![^{]*})/);
+    const segments = route.split(/(?=[\/?&])(?![^{]*})/).filter(x => x !== '/');
     const params: RouteParam[] = [];
     const queryParams: QueryParam[] = [];
     const rgxString = buildStubRegex(segments, params, queryParams, this.config);
