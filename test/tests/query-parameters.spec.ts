@@ -34,7 +34,10 @@ describe('Query Parameters', () => {
     const response3 = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all?limit=' });
     expect(response3.limit).toBe(null); // NaN -> null during JSON serialization
     await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all?limit=100b' }).catch(e => e);
-    expect(testEasyNetworkStub.lastError.message).toBe('Route not mocked: [GET] myserver/api/blog/posts/all?limit=100b'); // NaN -> null during JSON serialization
+    expect(testEasyNetworkStub.lastError.message).toBe(
+      'Route not mocked: [GET] myserver/api/blog/posts/all?limit=100b\n' +
+        "The non-optional query parameter 'limit' was not found in the url."
+    );
   });
 
   test('Query param boolean', async () => {
@@ -50,7 +53,10 @@ describe('Query Parameters', () => {
     const response3 = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all?refresh' });
     expect(response3.refresh).toBe(false); // @todo does 'true' make more sense here?
     await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all?refresh=1' }).catch(e => e);
-    expect(testEasyNetworkStub.lastError.message).toBe('Route not mocked: [GET] myserver/api/blog/posts/all?refresh=1');
+    expect(testEasyNetworkStub.lastError.message).toBe(
+      'Route not mocked: [GET] myserver/api/blog/posts/all?refresh=1\n' +
+        "The non-optional query parameter 'refresh' was not found in the url."
+    );
   });
 
   test('Multiple query params', async () => {
@@ -68,7 +74,10 @@ describe('Query Parameters', () => {
 
     // All query params need to be present
     await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all?limit=100' }).catch(e => e);
-    expect(testEasyNetworkStub.lastError.message).toBe('Route not mocked: [GET] myserver/api/blog/posts/all?limit=100');
+    expect(testEasyNetworkStub.lastError.message).toBe(
+      'Route not mocked: [GET] myserver/api/blog/posts/all?limit=100\n' +
+        "The non-optional query parameter 'filter' was not found in the url."
+    );
   });
 
   const prepareOptionaltests = () => {
