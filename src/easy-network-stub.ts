@@ -206,9 +206,7 @@ export class EasyNetworkStub {
 
       if (queryParam.isArray) {
         paramMap[queryParam.name] ??= [];
-        for (let i = 0; i < paramsWithValues.length; i++) {
-          paramMap[queryParam.name].push(paramsWithValues[i]);
-        }
+        paramMap[queryParam.name].push(...paramsWithValues);
       } else {
         if (paramsWithValues.length > 1) {
           throw new Error(`Query parameter '${queryParam.name}' has multiple values for url '${url}' but is not marked as array`);
