@@ -3,20 +3,19 @@ import { QueryParam } from '../../models/query-param';
 
 export const buildQueryParamRegex = (
   isOptionalParameter: boolean,
-  knownParameter: ParameterType | undefined,
+  knownParameter: ParameterType,
   isArray: boolean,
   queryParams: QueryParam[],
   paramName: string,
   paramValueType: string
 ): string => {
-  const paramValueMatcher = knownParameter ? knownParameter.matcher : '(\\w+)';
   const getQueryMatcher = (valueMatcher: string) => new RegExp(`[?&]${paramName}(?:=(?:${valueMatcher})?)?(?=$|&)`, 'gi');
   queryParams.push({
     name: paramName,
     type: paramValueType,
     optional: isOptionalParameter,
     isArray,
-    regex: getQueryMatcher(paramValueMatcher),
+    regex: getQueryMatcher(knownParameter.matcher),
     invalidRegex: getQueryMatcher('(\\w+)')
   });
   /**
