@@ -195,4 +195,23 @@ describe('Query Parameters', () => {
         "Query parameter 'limit' has multiple values for url 'MyServer/api/Blog/posts/all?limit=100&limit=200' but is not marked as array"
     );
   });
+
+  test('Trailing slash is optional', async () => {
+    testEasyNetworkStub.stub('GET', 'posts/all?{id}', ({ params }) => ({
+      val: params.id
+    }));
+    testEasyNetworkStub.stub('GET', 'posts/all/?{id2}', ({ params }) => ({
+      val: params.id2
+    }));
+
+    const response = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all/?id=a' });
+    expect(response.val).toBe('a');
+    const response2 = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all?id=a' });
+    expect(response2.val).toBe('a');
+
+    const response3 = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all/?id2=a' });
+    expect(response3.val).toBe('a');
+    const response4 = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all?id2=a' });
+    expect(response4.val).toBe('a');
+  });
 });
