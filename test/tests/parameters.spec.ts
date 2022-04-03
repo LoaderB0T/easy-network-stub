@@ -35,7 +35,7 @@ describe('Parameters', () => {
     expect(response2.id).toBe(648354);
     // String in param will fail
     await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/12a' }).catch(e => e);
-    expect(testEasyNetworkStub.lastError.message).toBe('Route not mocked: [GET] myserver/api/blog/posts/12a');
+    expect(testEasyNetworkStub.lastError.message).toBe('Route not mocked: [GET] MyServer/api/Blog/posts/12a');
   });
 
   test('Boolean param', async () => {
@@ -49,10 +49,10 @@ describe('Parameters', () => {
 
     // Values other than true or false will fail
     await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/notBool' }).catch(() => {});
-    expect(testEasyNetworkStub.lastError.message).toBe('Route not mocked: [GET] myserver/api/blog/posts/notbool');
+    expect(testEasyNetworkStub.lastError.message).toBe('Route not mocked: [GET] MyServer/api/Blog/posts/notBool');
     expect(testEasyNetworkStub.lastError.method).toBe('GET');
     expect(testEasyNetworkStub.lastError.registeredStubs.length).toBe(1);
     expect(testEasyNetworkStub.lastError.request.method).toBe('GET');
-    expect(testEasyNetworkStub.lastError.url).toBe('MyServer/api/Blog/posts/notBool'.toLowerCase());
+    expect(testEasyNetworkStub.lastError.url).toBe('MyServer/api/Blog/posts/notBool');
   });
 });

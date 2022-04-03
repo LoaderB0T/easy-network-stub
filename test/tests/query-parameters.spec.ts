@@ -18,9 +18,9 @@ describe('Query Parameters', () => {
     const response = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all?filter=test' });
     expect(response.filter).toBe('test');
     const response2 = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all?filter' });
-    expect(response2.filter).toBe(undefined);
+    expect(response2.filter).toBe('');
     const response3 = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all?filter=' });
-    expect(response3.filter).toBe(undefined);
+    expect(response3.filter).toBe('');
   });
 
   test('Query param number', async () => {
@@ -35,7 +35,7 @@ describe('Query Parameters', () => {
     expect(response3.limit).toBe(null); // NaN -> null during JSON serialization
     await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all?limit=100b' }).catch(e => e);
     expect(testEasyNetworkStub.lastError.message).toBe(
-      'Route not mocked: [GET] myserver/api/blog/posts/all?limit=100b\n' +
+      'Route not mocked: [GET] MyServer/api/Blog/posts/all?limit=100b\n' +
         "The non-optional query parameter 'limit' was not found in the url."
     );
   });
@@ -54,7 +54,7 @@ describe('Query Parameters', () => {
     expect(response3.refresh).toBe(false); // @todo does 'true' make more sense here?
     await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all?refresh=1' }).catch(e => e);
     expect(testEasyNetworkStub.lastError.message).toBe(
-      'Route not mocked: [GET] myserver/api/blog/posts/all?refresh=1\n' +
+      'Route not mocked: [GET] MyServer/api/Blog/posts/all?refresh=1\n' +
         "The non-optional query parameter 'refresh' was not found in the url."
     );
   });
@@ -75,7 +75,7 @@ describe('Query Parameters', () => {
     // All query params need to be present
     await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all?limit=100' }).catch(e => e);
     expect(testEasyNetworkStub.lastError.message).toBe(
-      'Route not mocked: [GET] myserver/api/blog/posts/all?limit=100\n' +
+      'Route not mocked: [GET] MyServer/api/Blog/posts/all?limit=100\n' +
         "The non-optional query parameter 'filter' was not found in the url."
     );
   });
@@ -128,7 +128,7 @@ describe('Query Parameters', () => {
 
     await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all?limit=100b' }).catch(e => e);
     expect(testEasyNetworkStub.lastError.message).toBe(
-      'Route not mocked: [GET] myserver/api/blog/posts/all?limit=100b\n' +
+      'Route not mocked: [GET] MyServer/api/Blog/posts/all?limit=100b\n' +
         "The optional query parameter 'limit' was found, but it did not match the configured type."
     );
   });
@@ -157,8 +157,38 @@ describe('Query Parameters', () => {
 
     await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/some' }).catch(e => e);
     expect(testEasyNetworkStub.lastError.message).toBe(
-      'Route not mocked: [GET] myserver/api/blog/posts/some\n' +
+      'Route not mocked: [GET] MyServer/api/Blog/posts/some\n' +
         "The non-optional query parameter 'required' was not found in the url."
+    );
+  });
+
+  test('Duplicated query params (arrays)', async () => {
+    testEasyNetworkStub.stub('GET', 'posts/all?{limit:number[]}', ({ params }) => {
+      params.limit[0]++;
+      return { limit: params.limit };
+    });
+    const response = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all?limit=100&limit=200' });
+    expect(response.limit[0]).toBe(101);
+    expect(response.limit[1]).toBe(200);
+  });
+
+  test('Duplicated query params (single)', async () => {
+    testEasyNetworkStub.stub('GET', 'posts/all?{limit:number[]}', ({ params }) => {
+      params.limit[0]++;
+      return { limit: params.limit };
+    });
+    const response = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all?limit=100' });
+    expect(response.limit[0]).toBe(101);
+  });
+
+  test('Single query params with multiple values fails', async () => {
+    testEasyNetworkStub.stub('GET', 'posts/all?{limit:number}', ({ params }) => {
+      return { limit: params.limit };
+    });
+    await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all?limit=100&limit=200' }).catch(e => e);
+    expect(testEasyNetworkStub.lastError.message).toBe(
+      'Route not mocked: [GET] MyServer/api/Blog/posts/all?limit=100&limit=200\n' +
+        "Query parameter 'limit' has multiple values for url 'MyServer/api/Blog/posts/all?limit=100&limit=200' but is not marked as array"
     );
   });
 });
