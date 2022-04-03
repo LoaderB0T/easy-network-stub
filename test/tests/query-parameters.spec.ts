@@ -71,7 +71,7 @@ describe('Query Parameters', () => {
     expect(testEasyNetworkStub.lastError.message).toBe('Route not mocked: [GET] myserver/api/blog/posts/all?limit=100');
   });
 
-  test('Optional query params', async () => {
+  const prepareOptionaltests = () => {
     testEasyNetworkStub.stub('GET', 'posts/all?{limit?:number}&{filter?}', ({ params }) => {
       let limit = params.limit;
       let filter = params.filter;
@@ -81,5 +81,75 @@ describe('Query Parameters', () => {
 
       return { limit: params.limit, filter: params.filter };
     });
+    testEasyNetworkStub.stub('GET', 'posts/some?{limit?:number}&{filter?}&{required}', ({ params }) => {
+      let limit = params.limit;
+      let filter = params.filter;
+      let required = params.required;
+
+      limit = undefined; // to validate that the type is optional
+      filter = undefined; // to validate that the type is optional
+      // @ts-expect-error
+      required = undefined; // to validate that the type is NOT optional
+
+      return { limit: params.limit, filter: params.filter, required: params.required };
+    });
+  };
+  test('Optional query params sunny day', async () => {
+    prepareOptionaltests();
+
+    const response = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all?limit=100&filter=test' });
+    expect(response.limit).toBe(100);
+    expect(response.filter).toBe('test');
+
+    const response2 = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all?filter=test' });
+    expect(response2.limit).toBe(undefined);
+    expect(response2.filter).toBe('test');
+
+    const response3 = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all?limit=100' });
+    expect(response3.limit).toBe(100);
+    expect(response3.filter).toBe(undefined);
+
+    const response4 = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all' });
+    expect(response4.limit).toBe(undefined);
+    expect(response4.filter).toBe(undefined);
+  });
+
+  test('Optional query params rainy day', async () => {
+    prepareOptionaltests();
+
+    await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all?limit=100b' }).catch(e => e);
+    expect(testEasyNetworkStub.lastError.message).toBe(
+      'Route not mocked: [GET] myserver/api/blog/posts/all?limit=100b\n' +
+        "The optional query parameter 'limit' was found, but it did not match the configured type."
+    );
+  });
+
+  test('Optional query params mixed', async () => {
+    prepareOptionaltests();
+
+    const response = await parseFetch(fakeNetwork, {
+      method: 'GET',
+      url: 'MyServer/api/Blog/posts/some?limit=100&filter=test&required'
+    });
+    expect(response.limit).toBe(100);
+    expect(response.filter).toBe('test');
+
+    const response2 = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/some?filter=test&required' });
+    expect(response2.limit).toBe(undefined);
+    expect(response2.filter).toBe('test');
+
+    const response3 = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/some?required&limit=100' });
+    expect(response3.limit).toBe(100);
+    expect(response3.filter).toBe(undefined);
+
+    const response4 = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/some?required' });
+    expect(response4.limit).toBe(undefined);
+    expect(response4.filter).toBe(undefined);
+
+    await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/some' }).catch(e => e);
+    expect(testEasyNetworkStub.lastError.message).toBe(
+      'Route not mocked: [GET] myserver/api/blog/posts/some\n' +
+        "The non-optional query parameter 'required' was not found in the url."
+    );
   });
 });
