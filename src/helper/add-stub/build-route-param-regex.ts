@@ -3,7 +3,7 @@ import { RouteParam } from '../../models/route-param';
 
 export const buildRouteParamRegex = (
   isOptionalParameter: boolean,
-  knownParameter: ParameterType | undefined,
+  knownParameter: ParameterType,
   isArray: boolean,
   prefix: string,
   params: RouteParam[],
@@ -17,9 +17,5 @@ export const buildRouteParamRegex = (
     throw new Error(`Array parameters are not supported for route parameters.`);
   }
   params.push({ name: paramName, type: paramValueType });
-  if (knownParameter) {
-    return `${prefix}${knownParameter.matcher}`;
-  } else {
-    return '(\\w+)';
-  }
+  return `${prefix}${knownParameter.matcher}`;
 };

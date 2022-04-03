@@ -17,7 +17,9 @@ export const buildStubRegexForSegment = (rawSegment: string, params: RouteParam[
     const isArray = paramMatch[4] === '[]';
     if (paramName) {
       const paramValueType = paramMatch[3]?.substring(1) ?? 'string';
-      const knownParameter = config.parameterTypes.find(x => x.name === paramValueType && x.type === paramType);
+      const knownParameter =
+        config.parameterTypes.find(x => x.name === paramValueType && x.type === paramType) ??
+        config.parameterTypes.find(x => x.name === 'string' && x.type === paramType)!;
       if (paramType === 'route') {
         return buildRouteParamRegex(isOptionalParameter, knownParameter, isArray, prefix, params, paramName, paramValueType);
       } else {

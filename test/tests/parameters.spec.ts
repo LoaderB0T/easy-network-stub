@@ -1,4 +1,5 @@
 import { FakeNetworkIntercept } from '../fake-network-intercept';
+import { afterEachLog } from '../log';
 import { parseFetch } from '../parse-fetch';
 import { TestEasyNetworkStub } from '../test-easy-network-stub';
 
@@ -9,6 +10,9 @@ describe('Parameters', () => {
     fakeNetwork = new FakeNetworkIntercept();
     testEasyNetworkStub = new TestEasyNetworkStub(/MyServer\/api\/Blog/);
     await testEasyNetworkStub.init(fakeNetwork);
+  });
+  afterEach(() => {
+    afterEachLog(testEasyNetworkStub);
   });
 
   test('String param', async () => {
