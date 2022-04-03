@@ -64,13 +64,29 @@ export class EasyNetworkStub {
 
       const urlWithoutQueryParams = req.url.split('?')[0];
 
-      const stub = this._stubs
-        .filter(x => urlWithoutQueryParams.match(x.regx) && x.method === req.method)
-        .find(x => x.queryParams.every(q => req.url.match(q.regex)));
+      const stubsWithCorrectRoute = this._stubs.filter(x => urlWithoutQueryParams.match(x.regx) && x.method === req.method);
+
+      let additionalErrorExplanation = '';
+      const stub = stubsWithCorrectRoute.find(x =>
+        x.queryParams.every(queryParam => {
+          if (req.url.match(queryParam.regex)) {
+            return true;
+          } else if (queryParam.optional) {
+            if (req.url.match(queryParam.invalidRegex)) {
+              additionalErrorExplanation += `\nThe optional query parameter '${queryParam.name}' was found, but it did not match the configured type.`;
+              return false;
+            }
+            return true;
+          } else {
+            additionalErrorExplanation = `\nThe non-optional query parameter '${queryParam.name}' was not found in the url.`;
+            return false;
+          }
+        })
+      );
 
       if (!stub) {
         this._errorLogger({
-          message: `Route not mocked: [${req.method}] ${req.url}`,
+          message: `Route not mocked: [${req.method}] ${req.url}${additionalErrorExplanation}`,
           method: req.method,
           request: req,
           registeredStubs: this._stubs,
@@ -155,10 +171,13 @@ export class EasyNetworkStub {
     stub.queryParams.forEach(queryParam => {
       const queryParamValue = url.match(queryParam.regex);
       if (!queryParamValue) {
-        throw new Error(`Could not parse query parameter '${queryParam.name}' for url '${url}'`);
+        if (!queryParam.optional) {
+          throw new Error(`Could not parse query parameter '${queryParam.name}' for url '${url}'`);
+        }
+      } else {
+        const paramValue = parseParam(queryParam, queryParamValue[1]);
+        paramMap[queryParam.name] = paramValue;
       }
-      const paramValue = parseParam(queryParam, queryParamValue[1]);
-      paramMap[queryParam.name] = paramValue;
     });
     return paramMap;
   }
@@ -200,7 +219,7 @@ export class EasyNetworkStub {
    * @param response The callback in which you can process the request and reply with the stub. When a Promise is returned, the stub response will be delayed until it is resolved.
    */
   public stub<Route extends string>(method: HttpMethod, route: Route, response: RouteResponseCallback<Route>): void {
-    const segments = route.split(/(?=[\/?&])/);
+    const segments = route.split(/(?=[\/?&])(?![^{]*})/);
     const params: RouteParam[] = [];
     const queryParams: QueryParam[] = [];
     const rgxString = this.buildStubRegex(segments, params, queryParams);
@@ -230,13 +249,17 @@ export class EasyNetworkStub {
     const { prefix, segment } = this.removePrefixIfExists(rawSegment);
     const paramType: ParamType = prefix === '/' || prefix === '' ? 'route' : 'query';
 
-    const paramMatch = segment.match(/{(\w+)([:]\w+)?}/);
+    const paramMatch = segment.match(/{(\w+)(\??)([:]\w+)?}/);
     if (paramMatch) {
       const paramName = paramMatch[1];
+      const isOptionalParameter = paramMatch[2] === '?';
       if (paramName) {
-        const paramValueType = paramMatch[2]?.substring(1) ?? 'string';
+        const paramValueType = paramMatch[3]?.substring(1) ?? 'string';
         const knownParameter = this._parameterTypes.find(x => x.name === paramValueType && x.type === paramType);
         if (paramType === 'route') {
+          if (isOptionalParameter) {
+            throw new Error(`Optional parameters are not supported for route parameters.`);
+          }
           params.push({ name: paramName, type: paramValueType });
           if (knownParameter) {
             return `${prefix}${knownParameter.matcher}`;
@@ -245,10 +268,13 @@ export class EasyNetworkStub {
           }
         } else {
           const paramValueMatcher = knownParameter ? knownParameter.matcher : '(\\w+)';
+          const getQueryMatcher = (valueMatcher: string) => new RegExp(`[?&]${paramName}(?:=(?:${valueMatcher})?)?(?:$|&)`);
           queryParams.push({
             name: paramName,
             type: paramValueType,
-            regex: new RegExp(`[?&]${paramName}(?:=(?:${paramValueMatcher})?)?(?:$|&)`)
+            optional: isOptionalParameter,
+            regex: getQueryMatcher(paramValueMatcher),
+            invalidRegex: getQueryMatcher('(\\w+)')
           });
           /**
            * Query parameter regex explanation:

@@ -1,4 +1,5 @@
 [![npm](https://img.shields.io/npm/v/easy-network-stub?color=%2300d26a&style=for-the-badge)](https://www.npmjs.com/package/easy-network-stub)
+[![CI](https://img.shields.io/github/workflow/status/LoaderB0T/easy-network-stub/CI/main?style=for-the-badge)](https://github.com/LoaderB0T/easy-network-stub/actions/workflows/build.yml)
 [![Sonar Quality Gate](https://img.shields.io/sonar/quality_gate/LoaderB0T_easy-network-stub?server=https%3A%2F%2Fsonarcloud.io&style=for-the-badge)](https://sonarcloud.io/summary/new_code?id=LoaderB0T_easy-network-stub)
 
 # easy-network-stub
