@@ -1,5 +1,3 @@
-import { RouteResponseCallback } from './route-response-callback';
-
 export type FlattenUnion<T> = {} extends T
   ? never
   : {
