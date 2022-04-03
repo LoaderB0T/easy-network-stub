@@ -13,7 +13,7 @@ export const parseRequestBody = (req: Request) => {
     return false;
   } else if (/^\d+$/.test(req.body)) {
     return Number.parseInt(req.body, 10);
-  } else if (/^\d*.\d*$/.test(req.body)) {
+  } else if (/^\d*\.\d*$/.test(req.body)) {
     return Number.parseFloat(req.body);
   } else {
     return req.body;
