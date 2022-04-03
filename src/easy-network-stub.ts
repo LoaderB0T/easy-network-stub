@@ -1,22 +1,34 @@
 import { headers, preflightHeaders } from './consts/headers';
-import { ErrorLog } from './models/error-log';
-import { ErrorResponse } from './models/error-response';
+import { buildStubRegex } from './helper/add-stub/build-stub-regex';
+import { tryGetResponseForRequest } from './helper/handle-request/try-get-response-for-request';
+import { Config } from './models/config';
 import { HttpMethod } from './models/http-method';
 import { InitConfig } from './models/init-config';
-import { ParameterType, ParamMatcher, ParamType, ParamPrefix } from './models/parameter-type';
+import { ParamMatcher, ParamType } from './models/parameter-type';
 import { QueryParam } from './models/query-param';
-import { Request } from './models/request';
 import { RouteParam } from './models/route-param';
-import { RouteParams } from './models/route-params';
 import { RouteResponseCallback } from './models/route-response-callback';
-import { Stub } from './models/stub';
 
 export class EasyNetworkStub {
-  private readonly _stubs: Stub<any>[] = [];
   private readonly _urlMatch: string | RegExp;
-  private readonly _parameterTypes: ParameterType[] = [];
-  private _errorLogger: (error: ErrorLog) => void;
-  private _failer: (error: string | Error) => void;
+  private config: Config = {
+    stubs: [],
+    errorLogger: error => {
+      console.error(error.message);
+      console.groupCollapsed('Mocking info');
+      console.groupCollapsed('Request');
+      console.log(error.request);
+      console.groupEnd();
+      console.groupCollapsed('Mocks');
+      console.log(error.registeredStubs);
+      console.groupEnd();
+      console.groupEnd();
+    },
+    failer: (error: string | Error) => {
+      throw error;
+    },
+    parameterTypes: []
+  };
 
   /**
    * A class to intercept and stub all calls to a certain api path.
@@ -25,7 +37,10 @@ export class EasyNetworkStub {
    */
   constructor(urlMatch: string | RegExp) {
     this._urlMatch = urlMatch;
+    this.addDefaultParamTypes();
+  }
 
+  private addDefaultParamTypes() {
     this.addParameterType('string', '(\\w+)', 'route');
     this.addParameterType('number', '(\\d+)', 'route', a => Number.parseInt(a, 10));
     this.addParameterType('boolean', '(true|false)', 'route', a => a === 'true');
@@ -39,20 +54,8 @@ export class EasyNetworkStub {
    * Call this in your beforeEach hook to start using the stub.
    */
   protected initInternal<T>(config: InitConfig<T>): T {
-    this._failer = config.failer;
-    this._errorLogger =
-      config.errorLogger ??
-      (error => {
-        console.error(error.message);
-        console.groupCollapsed('Mocking info');
-        console.groupCollapsed('Request');
-        console.log(error.request);
-        console.groupEnd();
-        console.groupCollapsed('Mocks');
-        console.log(error.registeredStubs);
-        console.groupEnd();
-        console.groupEnd();
-      });
+    this.config.failer = config.failer;
+    this.config.errorLogger = config.errorLogger ?? this.config.errorLogger;
 
     return config.interceptor(this._urlMatch, async req => {
       if (req.method.toUpperCase() === 'OPTIONS') {
@@ -60,24 +63,9 @@ export class EasyNetworkStub {
         return;
       }
 
-      var { stub, additionalErrorExplanation } = this.tryFindStub<T>(req);
-
-      if (!stub) {
-        return this.failBecauseOfNotOrWrongMockedRoute<T>(req, additionalErrorExplanation);
-      }
-      let paramMap: RouteParams;
-      try {
-        paramMap = this.parseRequestParameters(stub, req.url);
-      } catch (e: unknown) {
-        return this.failBecauseOfNotOrWrongMockedRoute<T>(req, e instanceof Error ? e.message : (e as any));
-      }
-      const parsedBody = this.parseRequestBody(req);
-
-      let response: any;
-      try {
-        response = await stub.response({ body: parsedBody, params: paramMap });
-      } catch (e: any) {
-        return this.logErrorAndReplyWithErrorCode(stub, req, e);
+      let response = await tryGetResponseForRequest(req, this.config);
+      if (!response) {
+        return;
       }
 
       if (typeof response !== 'object') {
@@ -90,152 +78,6 @@ export class EasyNetworkStub {
     });
   }
 
-  private tryFindStub<T>(req: Request) {
-    const urlWithoutQueryParams = req.url.split('?')[0];
-
-    const stubsWithCorrectRoute = this._stubs.filter(x => urlWithoutQueryParams.match(x.regx) && x.method === req.method);
-
-    let additionalErrorExplanation = '';
-    const stub = stubsWithCorrectRoute.find(x =>
-      x.queryParams.every(queryParam => {
-        if (req.url.match(queryParam.regex)) {
-          return true;
-        } else if (queryParam.optional) {
-          if (req.url.match(queryParam.invalidRegex)) {
-            additionalErrorExplanation += `The optional query parameter '${queryParam.name}' was found, but it did not match the configured type.`;
-            return false;
-          }
-          return true;
-        } else {
-          additionalErrorExplanation = `The non-optional query parameter '${queryParam.name}' was not found in the url.`;
-          return false;
-        }
-      })
-    );
-    return { stub, additionalErrorExplanation };
-  }
-
-  private failBecauseOfNotOrWrongMockedRoute<T>(req: Request, additionalErrorExplanation: string) {
-    this._errorLogger({
-      message: `Route not mocked: [${req.method}] ${req.url}${
-        additionalErrorExplanation ? `\n${additionalErrorExplanation}` : ''
-      }`,
-      method: req.method,
-      request: req,
-      registeredStubs: this._stubs,
-      url: req.url,
-      stack: new Error().stack
-    });
-    req.destroy();
-    this._failer(`Route not mocked: [${req.method}] ${req.url}`);
-  }
-
-  private logErrorAndReplyWithErrorCode(stub: Stub<any>, req: Request, e: any) {
-    const error = e as ErrorResponse<any>;
-    const errorContent = typeof error.content !== 'object' ? JSON.stringify(error) : error.content;
-    let errorHeaders = { ...headers };
-    if (error.headers) {
-      errorHeaders = { ...errorHeaders, ...error.headers };
-    }
-    if (error.statusCode) {
-      // If the error has a status code, we assume that the erro is purposely thrown in the test code
-      req.reply({ statusCode: error.statusCode, body: errorContent, headers: errorHeaders });
-    } else {
-      // If the error does not have a status code, we assume that the error is caused by a bug in the test code
-      this._errorLogger({
-        message:
-          `Error while trying to get the response from the stub: [${stub.method}] (${stub.regx.source}) for '${req.url}'\n` +
-          `msg: ${e.message}\n` +
-          'This is most likely a bug in your stub. (No statusCode was provided)',
-        method: req.method,
-        request: req,
-        registeredStubs: this._stubs,
-        url: req.url,
-        stack: e.stack ?? new Error().stack
-      });
-      req.reply({ statusCode: 500, body: JSON.stringify(errorContent ?? 'unknown error in mocked response') });
-    }
-  }
-
-  private parseRequestParameters(stub: Stub<any>, url: string) {
-    const urlWithoutQueryParams = url.split('?')[0];
-    const routeParamValues = urlWithoutQueryParams.match(stub.regx);
-    if (!routeParamValues) {
-      throw new Error(`Could not parse route parameters for url '${url}'`);
-    }
-
-    const paramMap: RouteParams = {};
-
-    const parseParam = (param: RouteParam | QueryParam, val: string) => {
-      const knownParameter = this._parameterTypes.find(x => x.name === param.type);
-      if (knownParameter) {
-        return knownParameter.parser(val);
-      } else {
-        return val;
-      }
-    };
-
-    for (let i = 0; i < stub.params.length; i++) {
-      const param = stub.params[i];
-      const paramValue = parseParam(param, routeParamValues[i + 1]);
-      paramMap[stub.params[i].name] = paramValue;
-    }
-    stub.queryParams.forEach(queryParam => {
-      this.parseRequestQueryParam(url, queryParam, parseParam, paramMap);
-    });
-    return paramMap;
-  }
-
-  private parseRequestQueryParam(
-    url: string,
-    queryParam: QueryParam,
-    parseParam: (param: RouteParam | QueryParam, val: string) => any,
-    paramMap: RouteParams
-  ) {
-    const queryParamValues = url.match(queryParam.regex);
-    if (!queryParamValues) {
-      if (!queryParam.optional) {
-        throw new Error(`Could not parse query parameter '${queryParam.name}' for url '${url}'`);
-      }
-    } else {
-      const paramsWithValues = queryParamValues.map(value => {
-        const rgx = new RegExp(`^[?&]${queryParam.name}(?:=(.*))?$`);
-        const val = value.match(rgx)![1];
-        return parseParam(queryParam, val ?? '');
-      });
-
-      if (queryParam.isArray) {
-        paramMap[queryParam.name] ??= [];
-        paramMap[queryParam.name].push(...paramsWithValues);
-      } else {
-        if (paramsWithValues.length > 1) {
-          throw new Error(`Query parameter '${queryParam.name}' has multiple values for url '${url}' but is not marked as array`);
-        }
-        paramMap[queryParam.name] = paramsWithValues[0];
-      }
-    }
-  }
-
-  private parseRequestBody(req: Request) {
-    try {
-      const parsedBody = JSON.parse(req.body);
-      return parsedBody;
-    } catch {
-      // Ignore and move on
-    }
-    if (req.body === 'true') {
-      return true;
-    } else if (req.body === 'false') {
-      return false;
-    } else if (/^\d+$/.test(req.body)) {
-      return Number.parseInt(req.body, 10);
-    } else if (/^\d*.\d*$/.test(req.body)) {
-      return Number.parseFloat(req.body);
-    } else {
-      return req.body;
-    }
-  }
-
   /**
    * Add a new parameter type that can be used in the stub method route property.
    * @param name The name of the new parameter (To use it as {name} later in the route property)
@@ -243,7 +85,7 @@ export class EasyNetworkStub {
    * @param parser The optional function that parses the string found by the matcher into any type you want.
    */
   public addParameterType(name: string, matcher: ParamMatcher, type: ParamType, parser: (v: string) => any = s => s) {
-    this._parameterTypes.push({ name, matcher, parser, type });
+    this.config.parameterTypes.push({ name, matcher, parser, type });
   }
 
   /**
@@ -256,92 +98,16 @@ export class EasyNetworkStub {
     const segments = route.split(/(?=[\/?&])(?![^{]*})/);
     const params: RouteParam[] = [];
     const queryParams: QueryParam[] = [];
-    const rgxString = this.buildStubRegex(segments, params, queryParams);
+    const rgxString = buildStubRegex(segments, params, queryParams, this.config);
 
     const regx = new RegExp(rgxString, 'i');
 
-    this._stubs.push({
+    this.config.stubs.push({
       regx,
       response,
       params,
       queryParams,
       method
     });
-  }
-
-  private buildStubRegex(segments: string[], params: RouteParam[], queryParams: QueryParam[]) {
-    return (
-      segments
-        .map(segment => {
-          return this.buildStubRegexForSegment(segment, params, queryParams);
-        })
-        .join('') + '/?$'
-    );
-  }
-
-  private buildStubRegexForSegment(rawSegment: string, params: RouteParam[], queryParams: QueryParam[]) {
-    const { prefix, segment } = this.removePrefixIfExists(rawSegment);
-    const paramType: ParamType = prefix === '/' || prefix === '' ? 'route' : 'query';
-
-    const paramMatch = segment.match(/{(\w+)(\??)((?:[:]\w+)?)((?:\[\])?)}/);
-    if (paramMatch) {
-      const paramName = paramMatch[1];
-      const isOptionalParameter = paramMatch[2] === '?';
-      const isArray = paramMatch[4] === '[]';
-      if (paramName) {
-        const paramValueType = paramMatch[3]?.substring(1) ?? 'string';
-        const knownParameter = this._parameterTypes.find(x => x.name === paramValueType && x.type === paramType);
-        if (paramType === 'route') {
-          if (isOptionalParameter) {
-            throw new Error(`Optional parameters are not supported for route parameters.`);
-          }
-          params.push({ name: paramName, type: paramValueType });
-          if (knownParameter) {
-            return `${prefix}${knownParameter.matcher}`;
-          } else {
-            return '(\\w+)';
-          }
-        } else {
-          const paramValueMatcher = knownParameter ? knownParameter.matcher : '(\\w+)';
-          const getQueryMatcher = (valueMatcher: string) => new RegExp(`[?&]${paramName}(?:=(?:${valueMatcher})?)?(?=$|&)`, 'gi');
-          queryParams.push({
-            name: paramName,
-            type: paramValueType,
-            optional: isOptionalParameter,
-            isArray,
-            regex: getQueryMatcher(paramValueMatcher),
-            invalidRegex: getQueryMatcher('(\\w+)')
-          });
-          /**
-           * Query parameter regex explanation:
-           * Example: paramValueMatcher -> (true|false)
-           * Example: paramName -> yes
-           * yes(?:=(?:(true|false))?)?(?:$|&)
-           * Matches "yes=true&" "yes=true" "yes=&" "yes=" "yes"
-           *
-           * (?:$|&) Makes sure the query param has either no value
-           *   (end of url or beginning of next query param)
-           *   or a value that matches the known parameter type
-           */
-          return '';
-        }
-      }
-    } else {
-      return prefix + segment;
-    }
-  }
-
-  private removePrefixIfExists(segment: string): { prefix: ParamPrefix; segment: string } {
-    let prefix = segment.charAt(0);
-
-    if (prefix === '/' || prefix === '&' || prefix === '?') {
-      segment = segment.substring(1);
-      if (prefix === '?') {
-        prefix = `\\?`;
-      }
-    } else {
-      prefix = '';
-    }
-    return { prefix: prefix as ParamPrefix, segment };
   }
 }
