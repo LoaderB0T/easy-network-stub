@@ -29,12 +29,12 @@ export const tryGetResponseForRequest = async (req: Request, config: Config): Pr
     })
   );
 
+  let stack: string;
   if (!stub) {
-    const stack = new Error().stack!;
+    stack = new Error().stack!;
     return failBecauseOfNotOrWrongMockedRoute(req, ifNoStubIsFoundThenWhy, config, stack);
   }
   let paramMap: RouteParams;
-  let stack: string;
   try {
     stack = new Error().stack!;
     paramMap = parseRequestParameters(stub, req.url, config);
