@@ -52,7 +52,7 @@ describe('Parameters', () => {
     expect(response2.yes).toBe(false);
 
     // Values other than true or false will fail
-    await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/notBool' }).catch(() => {});
+    await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/notBool' }).catch(e => e);
     expect(testEasyNetworkStub.lastError.message).toBe('Route not mocked: [GET] MyServer/api/Blog/posts/notBool');
     expect(testEasyNetworkStub.lastError.method).toBe('GET');
     expect(testEasyNetworkStub.lastError.registeredStubs.length).toBe(1);

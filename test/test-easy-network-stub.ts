@@ -18,7 +18,7 @@ export class TestEasyNetworkStub extends EasyNetworkStub {
     super(urlMatch);
   }
 
-  public gotError = (err: any) => {
+  public gotError = (_err: any) => {
     // noop
   };
 
