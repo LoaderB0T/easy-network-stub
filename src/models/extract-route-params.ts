@@ -9,17 +9,27 @@ export type ExtractRouteParams<T extends string> = T extends `${string}{${infer 
   : {};
 
 type GetParamOptional<T extends string> = T extends `${infer Param}?:${infer ParamType}`
-  ? { [K in Param]: TypeConverter<ParamType> | undefined }
+  ? { [K in Param]: MakeOptional<TypeConverter<ParamType>, true> }
   : T extends `${infer Param}?`
-  ? { [K in Param]: string | undefined }
+  ? GetParamWithoutTypeInfo<Param, true>
   : never;
 
 type GetParamRequired<T extends string> = T extends `${infer Param}:${infer ParamType}`
   ? { [K in Param]: TypeConverter<ParamType> }
   : T extends `${infer Param}`
-  ? { [K in Param]: string }
+  ? GetParamWithoutTypeInfo<Param>
   : never;
+
+type GetParamWithoutTypeInfo<T extends string, Optional = false> = T extends `${infer Param}[]`
+  ? { [K in Param]: MakeOptional<string[], Optional> }
+  : { [K in T]: MakeOptional<string, Optional> };
+
+type MakeOptional<T, Optional> = Optional extends true ? T | undefined : T;
 
 export type GetParam<T extends string> = T extends `${string}?${string}` ? GetParamOptional<T> : GetParamRequired<T>;
 
-export type TypeConverter<T extends string> = T extends 'number' ? number : T extends 'boolean' ? boolean : string;
+type TypeConverterElemental<T extends string> = T extends 'number' ? number : T extends 'boolean' ? boolean : string;
+
+export type TypeConverter<T extends string> = T extends `${infer Type}[]`
+  ? TypeConverterElemental<Type>[]
+  : TypeConverterElemental<T>;
