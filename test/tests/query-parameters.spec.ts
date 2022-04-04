@@ -40,7 +40,7 @@ describe('Query Parameters', () => {
     await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all?limit=100b' }).catch(e => e);
     expect(testEasyNetworkStub.lastError.message).toBe(
       'Route not mocked: [GET] MyServer/api/Blog/posts/all?limit=100b\n' +
-        "The non-optional query parameter 'limit' was not found in the url."
+        "Stub [posts/all?{limit:number}] The non-optional query parameter 'limit' was not found in the url."
     );
   });
 
@@ -59,7 +59,7 @@ describe('Query Parameters', () => {
     await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all?refresh=1' }).catch(e => e);
     expect(testEasyNetworkStub.lastError.message).toBe(
       'Route not mocked: [GET] MyServer/api/Blog/posts/all?refresh=1\n' +
-        "The non-optional query parameter 'refresh' was not found in the url."
+        "Stub [posts/all?{refresh:boolean}] The non-optional query parameter 'refresh' was not found in the url."
     );
   });
 
@@ -80,7 +80,7 @@ describe('Query Parameters', () => {
     await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all?limit=100' }).catch(e => e);
     expect(testEasyNetworkStub.lastError.message).toBe(
       'Route not mocked: [GET] MyServer/api/Blog/posts/all?limit=100\n' +
-        "The non-optional query parameter 'filter' was not found in the url."
+        "Stub [posts/all?{limit:number}&{filter:string}] The non-optional query parameter 'filter' was not found in the url."
     );
   });
 
@@ -133,7 +133,7 @@ describe('Query Parameters', () => {
     await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all?limit=100b' }).catch(e => e);
     expect(testEasyNetworkStub.lastError.message).toBe(
       'Route not mocked: [GET] MyServer/api/Blog/posts/all?limit=100b\n' +
-        "The optional query parameter 'limit' was found, but it did not match the configured type."
+        "Stub [posts/all?{limit?:number}&{filter?}]: Optional Query Param limit' was found, but it did not match the configured type."
     );
   });
 
@@ -162,7 +162,7 @@ describe('Query Parameters', () => {
     await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/some' }).catch(e => e);
     expect(testEasyNetworkStub.lastError.message).toBe(
       'Route not mocked: [GET] MyServer/api/Blog/posts/some\n' +
-        "The non-optional query parameter 'required' was not found in the url."
+        "Stub [posts/some?{limit?:number}&{filter?}&{required}] The non-optional query parameter 'required' was not found in the url."
     );
   });
 
@@ -213,5 +213,15 @@ describe('Query Parameters', () => {
     expect(response3.val).toBe('a');
     const response4 = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all?id2=a' });
     expect(response4.val).toBe('a');
+  });
+
+  test('Query param match is found when same url is mocked without query params', async () => {
+    testEasyNetworkStub.stub('GET', 'posts/all', () => ({}));
+    testEasyNetworkStub.stub('GET', 'posts/all?{id}', ({ params }) => ({
+      val: params.id
+    }));
+
+    const response = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all/?id=a' });
+    expect(response.val).toBe('a');
   });
 });

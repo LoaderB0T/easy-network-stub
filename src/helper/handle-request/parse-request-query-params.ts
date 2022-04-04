@@ -11,11 +11,11 @@ export const parseRequestQueryParam = (
   const queryParamValues = url.match(queryParam.regex);
   if (!queryParamValues) {
     if (!queryParam.optional) {
-      throw new Error(`Could not parse query parameter '${queryParam.name}' for url '${url}'`);
+      throw new Error(`\nCould not parse query parameter '${queryParam.name}' for url '${url}'`);
     }
   } else {
     const paramsWithValues = queryParamValues.map(value => {
-      const rgx = new RegExp(`^[?&]${queryParam.name}(?:=(.*))?$`);
+      const rgx = new RegExp(`^[?&]${queryParam.name}(?:=(.*))?$`, 'i');
       const val = value.match(rgx)![1];
       return parseParam(queryParam, val ?? '');
     });
@@ -25,7 +25,7 @@ export const parseRequestQueryParam = (
       paramMap[queryParam.name].push(...paramsWithValues);
     } else {
       if (paramsWithValues.length > 1) {
-        throw new Error(`Query parameter '${queryParam.name}' has multiple values for url '${url}' but is not marked as array`);
+        throw new Error(`\nQuery parameter '${queryParam.name}' has multiple values for url '${url}' but is not marked as array`);
       }
       paramMap[queryParam.name] = paramsWithValues[0];
     }

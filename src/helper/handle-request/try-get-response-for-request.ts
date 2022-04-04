@@ -6,40 +6,54 @@ import { logErrorAndReplyWithErrorCode } from './log-error-and-reply-with-error-
 import { parseRequestBody } from './parse-request-body';
 import { parseRequestParameters } from './parse-request-params';
 
-export const tryGetResponseForRequest = async (req: Request, config: Config): Promise<any | void> => {
-  const urlWithoutQueryParams = req.url.split('?')[0];
-
-  const stubsWithCorrectRoute = config.stubs.filter(x => urlWithoutQueryParams.match(x.regx) && x.method === req.method);
+export const tryGetResponseForRequest = async (req: Request, config: Config): Promise<{ closed: boolean; response?: any }> => {
+  const splitUrl = req.url.split('?');
+  const urlWithoutQueryParams = splitUrl[0];
 
   let ifNoStubIsFoundThenWhy = '';
-  const stub = stubsWithCorrectRoute.find(x =>
-    x.queryParams.every(queryParam => {
-      if (req.url.match(queryParam.regex)) {
-        return true;
-      } else if (queryParam.optional) {
-        if (req.url.match(queryParam.invalidRegex)) {
-          ifNoStubIsFoundThenWhy += `The optional query parameter '${queryParam.name}' was found, but it did not match the configured type.`;
-          return false;
+
+  const stub = config.stubs
+    .filter(stub => stub.method === req.method)
+    // We sort the stubs by the count of query params, so that the most specific stub that matches the url is used
+    .sort((a, b) => b.queryParams.length - a.queryParams.length)
+    .find(stub => {
+      if (req.url.match(stub.regx)) {
+        if (stub.queryParams.filter(x => !x.optional).length === 0) {
+          return true;
         }
-        return true;
-      } else {
-        ifNoStubIsFoundThenWhy = `The non-optional query parameter '${queryParam.name}' was not found in the url.`;
+      }
+      if (!urlWithoutQueryParams.match(stub.regx)) {
         return false;
       }
-    })
-  );
+      return stub.queryParams.every(queryParam => {
+        if (req.url.match(queryParam.regex)) {
+          return true;
+        } else if (queryParam.optional) {
+          if (req.url.match(queryParam.invalidRegex)) {
+            ifNoStubIsFoundThenWhy += `\nStub [${stub.friendlyName}]: Optional Query Param ${queryParam.name}' was found, but it did not match the configured type.`;
+            return false;
+          }
+          return true;
+        } else {
+          ifNoStubIsFoundThenWhy = `\nStub [${stub.friendlyName}] The non-optional query parameter '${queryParam.name}' was not found in the url.`;
+          return false;
+        }
+      });
+    });
 
   let stack: string;
   if (!stub) {
     stack = new Error().stack!;
-    return failBecauseOfNotOrWrongMockedRoute(req, ifNoStubIsFoundThenWhy, config, stack);
+    failBecauseOfNotOrWrongMockedRoute(req, ifNoStubIsFoundThenWhy, config, stack);
+    return { closed: true };
   }
   let paramMap: RouteParams;
   try {
     stack = new Error().stack!;
     paramMap = parseRequestParameters(stub, req.url, config);
   } catch (e: unknown) {
-    return failBecauseOfNotOrWrongMockedRoute(req, e instanceof Error ? e.message : (e as any), config, stack!);
+    failBecauseOfNotOrWrongMockedRoute(req, e instanceof Error ? e.message : (e as any), config, stack!);
+    return { closed: true };
   }
   const parsedBody = parseRequestBody(req);
 
@@ -47,8 +61,8 @@ export const tryGetResponseForRequest = async (req: Request, config: Config): Pr
   try {
     response = await stub.response({ body: parsedBody, params: paramMap });
   } catch (e: any) {
-    return logErrorAndReplyWithErrorCode(stub, req, e, config);
+    logErrorAndReplyWithErrorCode(stub, req, e, config);
+    return { closed: true };
   }
-
-  return response;
+  return { response, closed: false };
 };

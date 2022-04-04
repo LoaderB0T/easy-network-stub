@@ -4,14 +4,18 @@ import { FakeNetworkIntercept } from './fake-network-intercept';
 const debugLogging = false;
 
 export const parseFetch = async (fakeNetwork: FakeNetworkIntercept, req: RequestData) => {
-  const fetchData = await fakeNetwork.fetch(req).catch(() => {
+  const fetchData = await fakeNetwork.fetch(req).catch(e => {
     // For debugging purposes during tests.
     if (debugLogging) {
       console.error(fakeNetwork.testEasyNetworkStub.lastError.message);
     }
-    const error = new Error(fakeNetwork.testEasyNetworkStub.lastError.message);
-    error.stack = fakeNetwork.testEasyNetworkStub.lastError.stack;
-    throw error;
+    if (e?.body) {
+      throw JSON.parse(e.body);
+    } else if (e) {
+      throw e;
+    } else {
+      throw new Error();
+    }
   });
   return JSON.parse(fetchData.body);
 };

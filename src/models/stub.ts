@@ -9,4 +9,5 @@ export type Stub<T extends string, U> = {
   params: RouteParam[];
   queryParams: QueryParam[];
   method: HttpMethod;
+  friendlyName: string;
 };

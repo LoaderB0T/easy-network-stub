@@ -63,8 +63,13 @@ export class EasyNetworkStub {
         return;
       }
 
-      let response = await tryGetResponseForRequest(req, this.config);
+      const responseResult = await tryGetResponseForRequest(req, this.config);
 
+      if (responseResult.closed) {
+        return;
+      }
+
+      let response = responseResult.response;
       if (response && typeof response !== 'object') {
         // Because strings or other primitive types also get parsed with JSON.parse, we need to strigify them here first
         response = JSON.stringify(response);
@@ -122,7 +127,8 @@ export class EasyNetworkStub {
         response,
         params,
         queryParams,
-        method
+        method,
+        friendlyName: route
       });
     };
   }

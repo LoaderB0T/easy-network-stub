@@ -25,7 +25,17 @@ export class FakeNetworkIntercept {
     const requestHandler = this._requestHandlers.find(x => x.matcher.test(req.url));
     if (requestHandler) {
       return new Promise<any>((resolve, reject) => {
-        requestHandler.requestHandler({ ...req, reply: r => resolve(r), destroy: () => reject() });
+        requestHandler.requestHandler({
+          ...req,
+          reply: r => {
+            if (!r.statusCode || r.statusCode < 200 || r.statusCode > 299) {
+              reject(r);
+            } else {
+              resolve(r);
+            }
+          },
+          destroy: () => reject()
+        });
       });
     }
     throw new Error('This fake network interceptor does not handle real network calls.');

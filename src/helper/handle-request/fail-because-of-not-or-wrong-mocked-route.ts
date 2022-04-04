@@ -7,8 +7,11 @@ export const failBecauseOfNotOrWrongMockedRoute = (
   config: Config,
   stack: string
 ) => {
+  const err = new Error();
+  err.name = 'NotMockedRouteError';
+  err.message = `Route not mocked: [${req.method}] ${req.url}${additionalErrorExplanation}`;
   config.errorLogger({
-    message: `Route not mocked: [${req.method}] ${req.url}${additionalErrorExplanation ? '\n' + additionalErrorExplanation : ''}`,
+    message: err.message,
     method: req.method,
     request: req,
     registeredStubs: config.stubs,
@@ -17,4 +20,5 @@ export const failBecauseOfNotOrWrongMockedRoute = (
   });
   req.destroy();
   config.failer(`Route not mocked: [${req.method}] ${req.url}`);
+  return err;
 };
