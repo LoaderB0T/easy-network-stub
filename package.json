@@ -1,6 +1,6 @@
 {
   "name": "easy-network-stub",
-  "version": "4.2.2-pre2",
+  "version": "4.2.2-pre3",
   "main": "lib/index.js",
   "repository": "https://github.com/LoaderB0T/easy-network-stub.git",
   "author": "Janik Schumacher",
