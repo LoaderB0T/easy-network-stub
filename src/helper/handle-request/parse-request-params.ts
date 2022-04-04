@@ -5,7 +5,7 @@ import { RouteParams } from '../../models/route-params';
 import { Stub } from '../../models/stub';
 import { parseRequestQueryParam } from './parse-request-query-params';
 
-export const parseRequestParameters = (stub: Stub<any>, url: string, config: Config) => {
+export const parseRequestParameters = (stub: Stub<any, any>, url: string, config: Config) => {
   const urlWithoutQueryParams = url.split('?')[0];
   const routeParamValues = urlWithoutQueryParams.match(stub.regx);
   if (!routeParamValues) {

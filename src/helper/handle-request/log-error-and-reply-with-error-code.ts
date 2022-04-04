@@ -4,7 +4,7 @@ import { ErrorResponse } from '../../models/error-response';
 import { Request } from '../../models/request';
 import { Stub } from '../../models/stub';
 
-export const logErrorAndReplyWithErrorCode = (stub: Stub<any>, req: Request, err: any, config: Config) => {
+export const logErrorAndReplyWithErrorCode = (stub: Stub<any, any>, req: Request, err: any, config: Config) => {
   const error = err as ErrorResponse<any>;
   const errorContent = typeof error.content !== 'object' ? JSON.stringify(error) : error.content;
   let errorHeaders = { ...headers };

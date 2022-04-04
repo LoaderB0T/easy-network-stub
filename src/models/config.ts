@@ -7,5 +7,5 @@ export type Config = {
   errorLogger: ErrorLogger;
   failer: Failer;
   parameterTypes: ParameterType[];
-  stubs: Stub<any>[];
+  stubs: Stub<any, any>[];
 };

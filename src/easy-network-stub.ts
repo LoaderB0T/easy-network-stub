@@ -94,20 +94,39 @@ export class EasyNetworkStub {
    * @param route The route that should be stubbed. Supports parameters in the form of {name:type}.
    * @param response The callback in which you can process the request and reply with the stub. When a Promise is returned, the stub response will be delayed until it is resolved.
    */
-  public stub<Route extends string>(method: HttpMethod, route: Route, response: RouteResponseCallback<Route>): void {
-    const segments = route.split(/(?=[\/?&])(?![^{]*})/).filter(x => x !== '/');
-    const params: RouteParam[] = [];
-    const queryParams: QueryParam[] = [];
-    const rgxString = buildStubRegex(segments, params, queryParams, this.config);
+  public stub<Route extends string>(method: HttpMethod, route: Route, response: RouteResponseCallback<Route, any>): void {
+    return this.stub2<any>()(method, route, response);
+  }
 
-    const regx = new RegExp(rgxString, 'i');
+  /**
+   * The stub2 method provides a way to set the type of the body that is sent.
+   * Due to restrictions in TypeScript (https://github.com/microsoft/TypeScript/issues/10571, https://github.com/Microsoft/TypeScript/pull/26349),
+   * We have to hacke a bit here. Calling stub2<T>() will return the stub method with a body of type T.
+   *
+   * Usage:
+   * ```
+   * .stub2<MyRequest>()('GET', '/api/test', ({ body }) => {
+   *   // body is of type MyRequest
+   * });
+   * ```
+   * @returns The stub method with a body of type T.
+   */
+  public stub2<T>() {
+    return <Route extends string>(method: HttpMethod, route: Route, response: RouteResponseCallback<Route, T>): void => {
+      const segments = route.split(/(?=[\/?&])(?![^{]*})/).filter(x => x !== '/');
+      const params: RouteParam[] = [];
+      const queryParams: QueryParam[] = [];
+      const rgxString = buildStubRegex(segments, params, queryParams, this.config);
 
-    this.config.stubs.push({
-      regx,
-      response,
-      params,
-      queryParams,
-      method
-    });
+      const regx = new RegExp(rgxString, 'i');
+
+      this.config.stubs.push({
+        regx,
+        response,
+        params,
+        queryParams,
+        method
+      });
+    };
   }
 }
