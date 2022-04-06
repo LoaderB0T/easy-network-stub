@@ -3,13 +3,13 @@ import { Request } from '../../models/request';
 
 export const failBecauseOfNotOrWrongMockedRoute = (
   req: Request,
-  additionalErrorExplanation: string,
+  additionalErrorExplanation: string[],
   config: Config,
   stack: string
 ) => {
   const err = new Error();
   err.name = 'NotMockedRouteError';
-  err.message = `Route not mocked: [${req.method}] ${req.url}${additionalErrorExplanation}`;
+  err.message = `Route not mocked: [${req.method}] ${req.url}${additionalErrorExplanation.join('\n')}`;
   config.errorLogger({
     message: err.message,
     method: req.method,
