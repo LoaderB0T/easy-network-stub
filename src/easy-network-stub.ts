@@ -69,11 +69,7 @@ export class EasyNetworkStub {
         return;
       }
 
-      let response = responseResult.response;
-      if (response && typeof response !== 'object') {
-        // Because strings or other primitive types also get parsed with JSON.parse, we need to strigify them here first
-        response = JSON.stringify(response);
-      }
+      const response = config.responseProcessor ? config.responseProcessor(responseResult.response) : responseResult.response;
       req.reply({ statusCode: 200, body: response, headers });
 
       return response;

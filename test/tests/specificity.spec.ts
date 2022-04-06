@@ -35,17 +35,17 @@ describe('Methods', () => {
       return 2;
     });
     const response1 = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all' });
-    expect(response1).toBe('6');
+    expect(response1).toBe(6);
     const response2 = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all?a' });
-    expect(response2).toBe('5');
+    expect(response2).toBe(5);
     const response3 = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all?a&b' });
-    expect(response3).toBe('4');
+    expect(response3).toBe(4);
     const response4 = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all?a&b&c' });
-    expect(response4).toBe('3');
+    expect(response4).toBe(3);
     const response5 = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all?a&b&c&d' });
-    expect(response5).toBe('2');
+    expect(response5).toBe(2);
     const response6 = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all?a&b&c&d&e' });
-    expect(response6).toBe('1');
+    expect(response6).toBe(1);
   });
 
   test('The more optional query params the better', async () => {
@@ -68,17 +68,17 @@ describe('Methods', () => {
       return 2;
     });
     const response1 = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all' });
-    expect(response1).toBe('6');
+    expect(response1).toBe(6);
     const response2 = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all?a' });
-    expect(response2).toBe('5');
+    expect(response2).toBe(5);
     const response3 = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all?a&b' });
-    expect(response3).toBe('4');
+    expect(response3).toBe(4);
     const response4 = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all?a&b&c' });
-    expect(response4).toBe('3');
+    expect(response4).toBe(3);
     const response5 = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all?a&b&c&d' });
-    expect(response5).toBe('2');
+    expect(response5).toBe(2);
     const response6 = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all?a&b&c&d&e' });
-    expect(response6).toBe('1');
+    expect(response6).toBe(1);
   });
 
   test('The more mixed query params the better', async () => {
@@ -101,16 +101,29 @@ describe('Methods', () => {
       return 2;
     });
     const response1 = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all' });
-    expect(response1).toBe('6');
+    expect(response1).toBe(6);
     const response2 = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all?a' });
-    expect(response2).toBe('5');
+    expect(response2).toBe(5);
     const response3 = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all?a&b' });
-    expect(response3).toBe('4');
+    expect(response3).toBe(4);
     const response4 = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all?a&b&c' });
-    expect(response4).toBe('3');
+    expect(response4).toBe(3);
     const response5 = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all?a&b&c&d' });
-    expect(response5).toBe('2');
+    expect(response5).toBe(2);
     const response6 = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all?a&b&c&d&e' });
-    expect(response6).toBe('1');
+    expect(response6).toBe(1);
+  });
+
+  test('Route must match fully', async () => {
+    testEasyNetworkStub.stub('GET', 'posts/all/something', () => {
+      return true;
+    });
+    const response = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all/something' });
+    expect(response).toBe(true);
+    await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all/something/else' }).catch(e => e);
+    expect(testEasyNetworkStub.lastError.message).toBe('Route not mocked: [GET] MyServer/api/Blog/posts/all/something/else');
+    testEasyNetworkStub.lastError.message = '';
+    await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all' }).catch(e => e);
+    expect(testEasyNetworkStub.lastError.message).toBe('Route not mocked: [GET] MyServer/api/Blog/posts/all');
   });
 });
