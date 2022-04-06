@@ -11,7 +11,7 @@ export const tryGetResponseForRequest = async (req: Request, config: Config): Pr
   const splitUrl = req.url.split('?');
   const urlWithoutQueryParams = splitUrl[0];
 
-  const stubsWithCorrectMethod = config.stubs.filter(stub => stub.method === req.method);
+  const stubsWithCorrectMethod = config.stubs.filter(s => s.method === req.method);
   const ifNoStubIsFoundThenWhy: string[] = [];
   const stubsAndTheirSpecificity = getAllMatchingStubsAndTheirSpecificity(
     stubsWithCorrectMethod,
@@ -27,7 +27,8 @@ export const tryGetResponseForRequest = async (req: Request, config: Config): Pr
     return { closed: true };
   }
 
-  const stub = stubsAndTheirSpecificity.sort((a, b) => b.specificity - a.specificity)[0].stub;
+  stubsAndTheirSpecificity.sort((a, b) => b.specificity - a.specificity);
+  const stub = stubsAndTheirSpecificity[0].stub;
 
   let paramMap: RouteParams;
   try {
