@@ -23,9 +23,7 @@ When running tests in e2e frameworks, sometimes you want to mock all network req
 
 ✅ Add your own parameter matchers
 
-✅ Detailed logging of all stubbed requests
-
-✅ Works synchronously and asynchronously
+✅ Works asynchronously (Promise based)
 
 ✅ Supports failing of stubbed requests
 
