@@ -83,7 +83,7 @@ export class EasyNetworkStub {
    * @param parser The optional function that parses the string found by the matcher into any type you want.
    */
   public addParameterType(name: string, matcher: ParamMatcher, type: ParamType, parser: (v: string) => any = s => s) {
-    this.config.parameterTypes.push({ name, matcher, parser, type });
+    this.config.parameterTypes.splice(0, 0, { name, matcher, parser, type });
   }
 
   /**
