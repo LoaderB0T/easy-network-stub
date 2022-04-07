@@ -8,19 +8,21 @@ export type ExtractRouteParams<T extends string> = T extends `${string}{${infer 
   ? FlattenUnion<GetParam<Param> & ExtractRouteParams<Rest>>
   : {};
 
+// the ArrayBrackets infer is needed, because we want "?{foo?[]} "and not "?{foo[]?}"
+// We move any string behind the ? to the left (assuming only [] will be used there)
 type GetParamOptional<T extends string> = T extends `${infer Param}?:${infer ParamType}`
   ? { [K in Param]: MakeOptional<TypeConverter<ParamType>, true> }
-  : T extends `${infer Param}?`
-  ? GetParamWithoutTypeInfo<Param, true>
+  : T extends `${infer Param}?${infer ArrayBrackets}`
+  ? GetParamWithoutTypeInfo<`${Param}${ArrayBrackets}`, true>
   : never;
 
 type GetParamRequired<T extends string> = T extends `${infer Param}:${infer ParamType}`
   ? { [K in Param]: TypeConverter<ParamType> }
   : T extends `${infer Param}`
-  ? GetParamWithoutTypeInfo<Param>
+  ? GetParamWithoutTypeInfo<Param, false>
   : never;
 
-type GetParamWithoutTypeInfo<T extends string, Optional = false> = T extends `${infer Param}[]`
+type GetParamWithoutTypeInfo<T extends string, Optional> = T extends `${infer Param}[]`
   ? { [K in Param]: MakeOptional<string[], Optional> }
   : { [K in T]: MakeOptional<string, Optional> };
 
