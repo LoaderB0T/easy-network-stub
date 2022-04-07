@@ -168,21 +168,28 @@ describe('Query Parameters', () => {
 
   test('Duplicated query params (arrays)', async () => {
     testEasyNetworkStub.stub('GET', 'posts/all?{limit:number[]}', ({ params }) => {
-      params.limit[0]++;
+      params.limit.push(123); // compiler check -> should be an array type
+      if (!Array.isArray(params.limit)) {
+        throw new Error('Should be an array');
+      }
       return { limit: params.limit };
     });
     const response = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all?limit=100&limit=200' });
-    expect(response.limit[0]).toBe(101);
+    expect(response.limit[0]).toBe(100);
     expect(response.limit[1]).toBe(200);
+    expect(response.limit[2]).toBe(123);
   });
 
   test('Duplicated query params (single)', async () => {
     testEasyNetworkStub.stub('GET', 'posts/all?{limit:number[]}', ({ params }) => {
-      params.limit[0]++;
+      params.limit.push(123); // compiler check -> should be an array type
+      if (!Array.isArray(params.limit)) {
+        throw new Error('Should be an array');
+      }
       return { limit: params.limit };
     });
     const response = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all?limit=100' });
-    expect(response.limit[0]).toBe(101);
+    expect(response.limit[0]).toBe(100);
   });
 
   test('Single query params with multiple values fails', async () => {
@@ -223,5 +230,51 @@ describe('Query Parameters', () => {
 
     const response = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all/?id=a' });
     expect(response.val).toBe('a');
+  });
+
+  test('Optional array parameter', async () => {
+    testEasyNetworkStub.stub('GET', 'posts/all?{limit?:number[]}', ({ params }) => {
+      let a = params.limit;
+      a = undefined; // Compiler check -> should be optional
+
+      if (params.limit) {
+        params.limit.push(123); // compiler check -> should be an array type
+        if (!Array.isArray(params.limit)) {
+          throw new Error('Should be an array');
+        }
+      }
+      return { limit: params.limit };
+    });
+    const response = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all?limit=100&limit=200' });
+    expect(response.limit[0]).toBe(100);
+    expect(response.limit[1]).toBe(200);
+    expect(response.limit[2]).toBe(123);
+    const response2 = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all' });
+    expect(response2.limit).toBe(undefined);
+    const response3 = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all?limit=100' });
+    expect(response3.limit[0]).toBe(100);
+  });
+
+  test('Optional array parameter without type', async () => {
+    testEasyNetworkStub.stub('GET', 'posts/all?{text?[]}', ({ params }) => {
+      let a = params.text;
+      a = undefined; // Compiler check -> should be optional
+
+      if (params.text) {
+        params.text.push('123'); // compiler check -> should be an array type
+        if (!Array.isArray(params.text)) {
+          throw new Error('Should be an array');
+        }
+      }
+      return { text: params.text };
+    });
+    const response = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all?text=100&text=200' });
+    expect(response.text[0]).toBe('100');
+    expect(response.text[1]).toBe('200');
+    expect(response.text[2]).toBe('123');
+    const response2 = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all' });
+    expect(response2.text).toBe(undefined);
+    const response3 = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all?text=100' });
+    expect(response3.text[0]).toBe('100');
   });
 });
