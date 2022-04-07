@@ -25,7 +25,7 @@ export const logErrorAndReplyWithErrorCode = (stub: Stub<any, any>, req: Request
       name: 'StubError',
       stack: err.stack ?? new Error().stack
     };
-
+    console.error(err);
     config.errorLogger({
       message: newErr.message,
       method: req.method,
