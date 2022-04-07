@@ -40,6 +40,11 @@ The primary use case for this package is to create a mock server for your tests 
 You can find usage examples in the existing framework-specific wrappers for this package: [Playwright](https://github.com/LoaderB0T/playwright-easy-network-stub) or [Cypress](https://github.com/LoaderB0T/cypress-easy-network-stub)
 
 ## Strongly typed api parameters:
+You can add types to parameters and they will be parsed. Out of box 'string', 'number' and 'boolean' are supported. You can add your own types and parsers though.
+<p align="center">
+<img src="https://user-images.githubusercontent.com/37637338/162327029-994ce009-d1ab-45cc-ab86-d1e21a0d1a6e.png">
+<img src="https://user-images.githubusercontent.com/37637338/162327040-a45381a1-652d-4838-91ae-7dc405bd9ff4.png">
+</p>
 
 ## Contributing 🧑🏻‍💻
 
