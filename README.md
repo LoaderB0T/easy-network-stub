@@ -37,13 +37,9 @@ The primary use case for this package is to create a mock server for your tests 
 
 ## Usage Example 🚀
 
-```typescript
-// todo: add example
-```
+You can find usage examples in the existing framework-specific wrappers for this package: [Playwright](https://github.com/LoaderB0T/playwright-easy-network-stub) or [Cypress](https://github.com/LoaderB0T/cypress-easy-network-stub)
 
-Strongly typed api parameters:
-
-![28e1ce4ebde1baee92f4cb40a23452ab](https://user-images.githubusercontent.com/37637338/116729565-9955ab00-a9e7-11eb-828e-f88979f21452.gif)
+## Strongly typed api parameters:
 
 ## Contributing 🧑🏻‍💻
 
