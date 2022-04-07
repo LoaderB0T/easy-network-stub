@@ -114,16 +114,32 @@ describe('Methods', () => {
     expect(response6).toBe(1);
   });
 
-  test('Route must match fully', async () => {
+  test('Route must match fully: too long not matched', async () => {
     testEasyNetworkStub.stub('GET', 'posts/all/something', () => {
       return true;
     });
+    // one time we check the positive
     const response = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all/something' });
     expect(response).toBe(true);
+
     await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all/something/else' }).catch(e => e);
     expect(testEasyNetworkStub.lastError.message).toBe('Route not mocked: [GET] MyServer/api/Blog/posts/all/something/else');
-    testEasyNetworkStub.lastError.message = '';
+  });
+
+  test('Route must match fully: too short not matched', async () => {
+    testEasyNetworkStub.stub('GET', 'posts/all/something', () => {
+      return true;
+    });
     await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all' }).catch(e => e);
     expect(testEasyNetworkStub.lastError.message).toBe('Route not mocked: [GET] MyServer/api/Blog/posts/all');
+  });
+
+  // For now this is not supported
+  test.skip('Route must match fully: additional stuff at beginning', async () => {
+    testEasyNetworkStub.stub('GET', 'posts/all/something', () => {
+      return true;
+    });
+    await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/new/posts/all/something' }).catch(e => e);
+    expect(testEasyNetworkStub.lastError.message).toBe('Route not mocked: [GET] MyServer/api/Blog/new/posts/all/something');
   });
 });
