@@ -1,4 +1,4 @@
-import { ParamPrefix } from '../../models/parameter-type';
+import { ParamPrefix } from '../../models/parameter-type.js';
 
 export const removePrefixIfExists = (segment: string): { prefix: ParamPrefix; segment: string } => {
   let prefix = segment.charAt(0);

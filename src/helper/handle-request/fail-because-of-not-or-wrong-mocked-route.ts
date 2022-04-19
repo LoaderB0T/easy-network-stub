@@ -1,5 +1,5 @@
-import { Config } from '../../models/config';
-import { Request } from '../../models/request';
+import { Config } from '../../models/config.js';
+import { Request } from '../../models/request.js';
 
 export const failBecauseOfNotOrWrongMockedRoute = (
   req: Request,

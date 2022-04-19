@@ -1,6 +1,6 @@
-import { Request, RequestData } from '../src/models/request';
-import { Response } from '../src/models/response';
-import { TestEasyNetworkStub } from './test-easy-network-stub';
+import { Request, RequestData } from '../src/models/request.js';
+import { Response } from '../src/models/response.js';
+import { TestEasyNetworkStub } from './test-easy-network-stub.js';
 
 type RequestHandler = (req: Request) => Promise<void>;
 type RequestHandlerConfig = { matcher: RegExp; requestHandler: RequestHandler };
@@ -11,8 +11,8 @@ type RequestHandlerConfig = { matcher: RegExp; requestHandler: RequestHandler };
  * Is used by the TestEasyNetworkStub class where usually the test framework's stubbing capabilities are used.
  */
 export class FakeNetworkIntercept {
-  private _requestHandlers: RequestHandlerConfig[] = [];
-  public testEasyNetworkStub: TestEasyNetworkStub;
+  private readonly _requestHandlers: RequestHandlerConfig[] = [];
+  public testEasyNetworkStub!: TestEasyNetworkStub;
 
   public intercept(matcher: RegExp | string, requestHandler: (req: Request) => Promise<void>) {
     if (typeof matcher === 'string') {

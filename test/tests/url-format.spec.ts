@@ -1,7 +1,7 @@
-import { FakeNetworkIntercept } from '../fake-network-intercept';
-import { afterEachLog } from '../log';
-import { parseFetch } from '../parse-fetch';
-import { TestEasyNetworkStub } from '../test-easy-network-stub';
+import { FakeNetworkIntercept } from '../fake-network-intercept.js';
+import { afterEachLog } from '../log.js';
+import { parseFetch } from '../parse-fetch.js';
+import { TestEasyNetworkStub } from '../test-easy-network-stub.js';
 
 describe('Url Format', () => {
   let fakeNetwork: FakeNetworkIntercept;
@@ -9,8 +9,8 @@ describe('Url Format', () => {
   beforeEach(async () => {
     fakeNetwork = new FakeNetworkIntercept();
   });
-  afterEach(() => {
-    afterEachLog(testEasyNetworkStub);
+  afterEach(async () => {
+    await afterEachLog(testEasyNetworkStub);
   });
 
   const testWrap = async (base: string | RegExp, stub: string, url: string) => {

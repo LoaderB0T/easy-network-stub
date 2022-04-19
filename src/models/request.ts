@@ -1,5 +1,5 @@
-import { HttpMethod } from './http-method';
-import { Response } from './response';
+import { HttpMethod } from './http-method.js';
+import { Response } from './response.js';
 
 export type RequestData = {
   url: string;

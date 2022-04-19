@@ -1,4 +1,4 @@
-import { Stub } from './stub';
+import { Stub } from './stub.js';
 
 export type ErrorLog = {
   message: string;

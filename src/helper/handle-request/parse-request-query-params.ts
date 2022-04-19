@@ -1,6 +1,6 @@
-import { QueryParam } from '../../models/query-param';
-import { RouteParam } from '../../models/route-param';
-import { RouteParams } from '../../models/route-params';
+import { QueryParam } from '../../models/query-param.js';
+import { RouteParam } from '../../models/route-param.js';
+import { RouteParams } from '../../models/route-params.js';
 
 export const parseRequestQueryParam = (
   url: string,

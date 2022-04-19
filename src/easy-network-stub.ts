@@ -1,13 +1,13 @@
-import { headers, preflightHeaders } from './consts/headers';
-import { buildStubRegex } from './helper/add-stub/build-stub-regex';
-import { tryGetResponseForRequest } from './helper/handle-request/try-get-response-for-request';
-import { Config } from './models/config';
-import { HttpMethod } from './models/http-method';
-import { InitConfig } from './models/init-config';
-import { ParamMatcher, ParamType } from './models/parameter-type';
-import { QueryParam } from './models/query-param';
-import { RouteParam } from './models/route-param';
-import { RouteResponseCallback } from './models/route-response-callback';
+import { headers, preflightHeaders } from './consts/headers.js';
+import { buildStubRegex } from './helper/add-stub/build-stub-regex.js';
+import { tryGetResponseForRequest } from './helper/handle-request/try-get-response-for-request.js';
+import { Config } from './models/config.js';
+import { HttpMethod } from './models/http-method.js';
+import { InitConfig } from './models/init-config.js';
+import { ParamMatcher, ParamType } from './models/parameter-type.js';
+import { QueryParam } from './models/query-param.js';
+import { RouteParam } from './models/route-param.js';
+import { RouteResponseCallback } from './models/route-response-callback.js';
 
 export class EasyNetworkStub {
   private readonly _urlMatch: string | RegExp;
@@ -111,7 +111,7 @@ export class EasyNetworkStub {
    */
   public stub2<T>() {
     return <Route extends string>(method: HttpMethod, route: Route, response: RouteResponseCallback<Route, T>): void => {
-      const segments = route.split(/(?=[\/?&])(?![^{]*})/).filter(x => x !== '/');
+      const segments = route.split(/(?=[/?&])(?![^{]*})/).filter(x => x !== '/');
       const params: RouteParam[] = [];
       const queryParams: QueryParam[] = [];
       const rgxString = buildStubRegex(segments, params, queryParams, this.config);

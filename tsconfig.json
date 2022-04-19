@@ -1,9 +1,9 @@
 {
   "compilerOptions": {
-    "target": "ES2015",
-    "module": "CommonJS",
+    "target": "ES2019",
+    "module": "ESNext",
     "baseUrl": "./",
-    "lib": ["ES2020"],
+    "lib": ["ES2019", "ESNext"],
     "declaration": true,
     "outDir": "lib",
     "rootDir": "./src",
@@ -11,12 +11,13 @@
     "types": ["node"],
     "sourceMap": true,
     "esModuleInterop": true,
-    "strictPropertyInitialization": false,
+    "resolveJsonModule": true,
+    "strictPropertyInitialization": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "moduleResolution": "node",
-    "skipLibCheck": true,
-    "newLine": "lf"
+    "stripInternal": true
   },
-  "exclude": ["lib", "test"]
+  "include": ["src"],
+  "exclude": ["lib"]
 }
