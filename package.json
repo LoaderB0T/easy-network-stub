@@ -14,7 +14,7 @@
       "require": "./lib/cjs/index.js"
     }
   },
-  "main": "./lib/esm/index.js",
+  "main": "./lib/cjs/index.js",
   "prettier": "@awdware/prettier-config",
   "scripts": {
     "lint": "yarn eslint ./src/**",
