@@ -29,6 +29,8 @@ When running tests in e2e frameworks, sometimes you want to mock all network req
 
 ✅ No production dependencies
 
+✅ ESM & CJS exports
+
 The primary use case for this package is to create a mock server for your tests so that they do not need real network requests.
 
 ## Built With 🔧
