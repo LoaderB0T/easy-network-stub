@@ -1,5 +1,5 @@
-import { RequestData } from '../src/models/request';
-import { FakeNetworkIntercept } from './fake-network-intercept';
+import { RequestData } from '../src/models/request.js';
+import { FakeNetworkIntercept } from './fake-network-intercept.js';
 
 const debugLogging = false;
 

@@ -1,11 +1,11 @@
-import { Config } from '../../models/config';
-import { Request } from '../../models/request';
-import { RouteParams } from '../../models/route-params';
-import { failBecauseOfNotOrWrongMockedRoute } from './fail-because-of-not-or-wrong-mocked-route';
-import { getAllMatchingStubsAndTheirSpecificity } from './get-all-matching-stubs-and-their-specificity';
-import { logErrorAndReplyWithErrorCode } from './log-error-and-reply-with-error-code';
-import { parseRequestBody } from './parse-request-body';
-import { parseRequestParameters } from './parse-request-params';
+import { Config } from '../../models/config.js';
+import { Request } from '../../models/request.js';
+import { RouteParams } from '../../models/route-params.js';
+import { failBecauseOfNotOrWrongMockedRoute } from './fail-because-of-not-or-wrong-mocked-route.js';
+import { getAllMatchingStubsAndTheirSpecificity } from './get-all-matching-stubs-and-their-specificity.js';
+import { logErrorAndReplyWithErrorCode } from './log-error-and-reply-with-error-code.js';
+import { parseRequestBody } from './parse-request-body.js';
+import { parseRequestParameters } from './parse-request-params.js';
 
 export const tryGetResponseForRequest = async (req: Request, config: Config): Promise<{ closed: boolean; response?: any }> => {
   const splitUrl = req.url.split('?');

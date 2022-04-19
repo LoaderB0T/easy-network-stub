@@ -1,8 +1,8 @@
-import { headers } from '../../consts/headers';
-import { Config } from '../../models/config';
-import { ErrorResponse } from '../../models/error-response';
-import { Request } from '../../models/request';
-import { Stub } from '../../models/stub';
+import { headers } from '../../consts/headers.js';
+import { Config } from '../../models/config.js';
+import { ErrorResponse } from '../../models/error-response.js';
+import { Request } from '../../models/request.js';
+import { Stub } from '../../models/stub.js';
 
 export const logErrorAndReplyWithErrorCode = (stub: Stub<any, any>, req: Request, err: any, config: Config) => {
   const error = err as ErrorResponse<any>;

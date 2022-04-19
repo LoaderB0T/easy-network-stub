@@ -1,8 +1,8 @@
-import { FakeNetworkIntercept } from '../fake-network-intercept';
-import { afterEachLog } from '../log';
-import { parseFetch } from '../parse-fetch';
-import { ErrorResponse } from '../../src/models/error-response';
-import { TestEasyNetworkStub } from '../test-easy-network-stub';
+import { FakeNetworkIntercept } from '../fake-network-intercept.js';
+import { afterEachLog } from '../log.js';
+import { parseFetch } from '../parse-fetch.js';
+import { ErrorResponse } from '../../src/models/error-response.js';
+import { TestEasyNetworkStub } from '../test-easy-network-stub.js';
 
 describe('Failed Requests', () => {
   let fakeNetwork: FakeNetworkIntercept;
@@ -12,8 +12,8 @@ describe('Failed Requests', () => {
     testEasyNetworkStub = new TestEasyNetworkStub(/MyServer\/api\/Blog/);
     await testEasyNetworkStub.init(fakeNetwork);
   });
-  afterEach(() => {
-    afterEachLog(testEasyNetworkStub);
+  afterEach(async () => {
+    await afterEachLog(testEasyNetworkStub);
   });
 
   test('Fail a get request', async () => {

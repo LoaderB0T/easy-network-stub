@@ -1,5 +1,5 @@
-import { ErrorLog } from './error-log';
-import { Interceptor } from './interceptor';
+import { ErrorLog } from './error-log.js';
+import { Interceptor } from './interceptor.js';
 
 export type InitConfig<T> = {
   interceptor: Interceptor<T>;

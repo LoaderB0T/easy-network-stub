@@ -1,5 +1,5 @@
-import { ParameterType } from '../../models/parameter-type';
-import { RouteParam } from '../../models/route-param';
+import { ParameterType } from '../../models/parameter-type.js';
+import { RouteParam } from '../../models/route-param.js';
 
 export const buildRouteParamRegex = (
   isOptionalParameter: boolean,

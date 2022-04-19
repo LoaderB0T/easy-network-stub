@@ -1,6 +1,6 @@
-export const normalConsole = (cb: () => void) => {
+export const normalConsole = async (cb: () => void) => {
   const jestConsole = console;
-  global.console = require('console');
+  global.console = await import('console');
   cb();
   global.console = jestConsole;
 };

@@ -1,7 +1,7 @@
-import { FakeNetworkIntercept } from '../fake-network-intercept';
-import { afterEachLog } from '../log';
-import { parseFetch } from '../parse-fetch';
-import { TestEasyNetworkStub } from '../test-easy-network-stub';
+import { FakeNetworkIntercept } from '../fake-network-intercept.js';
+import { afterEachLog } from '../log.js';
+import { parseFetch } from '../parse-fetch.js';
+import { TestEasyNetworkStub } from '../test-easy-network-stub.js';
 
 describe('Custom Parameter Types', () => {
   let fakeNetwork: FakeNetworkIntercept;
@@ -12,8 +12,8 @@ describe('Custom Parameter Types', () => {
     testEasyNetworkStub = new TestEasyNetworkStub(/MyServer\/api\/Blog/);
     await testEasyNetworkStub.init(fakeNetwork);
   });
-  afterEach(() => {
-    afterEachLog(testEasyNetworkStub);
+  afterEach(async () => {
+    await afterEachLog(testEasyNetworkStub);
   });
 
   test('ROUTE: Add custom route parameter (string) type', async () => {

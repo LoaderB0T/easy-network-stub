@@ -1,5 +1,5 @@
-import { ParameterType } from '../../models/parameter-type';
-import { QueryParam } from '../../models/query-param';
+import { ParameterType } from '../../models/parameter-type.js';
+import { QueryParam } from '../../models/query-param.js';
 
 export const buildQueryParamRegex = (
   isOptionalParameter: boolean,

@@ -1,4 +1,4 @@
-import { Request } from '../../models/request';
+import { Request } from '../../models/request.js';
 
 export const parseRequestBody = (req: Request) => {
   try {
