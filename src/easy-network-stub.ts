@@ -11,7 +11,7 @@ import { RouteResponseCallback } from './models/route-response-callback.js';
 
 export class EasyNetworkStub {
   private readonly _urlMatch: string | RegExp;
-  private config: Config = {
+  private readonly _config: Config = {
     stubs: [],
     errorLogger: error => {
       console.error(error.message);
@@ -54,8 +54,8 @@ export class EasyNetworkStub {
    * Call this in your beforeEach hook to start using the stub.
    */
   protected initInternal<T>(config: InitConfig<T>): T {
-    this.config.failer = config.failer;
-    this.config.errorLogger = config.errorLogger ?? this.config.errorLogger;
+    this._config.failer = config.failer;
+    this._config.errorLogger = config.errorLogger ?? this._config.errorLogger;
 
     return config.interceptor(this._urlMatch, async req => {
       if (req.method.toUpperCase() === 'OPTIONS') {
@@ -63,7 +63,7 @@ export class EasyNetworkStub {
         return;
       }
 
-      const responseResult = await tryGetResponseForRequest(req, this.config);
+      const responseResult = await tryGetResponseForRequest(req, this._config);
 
       if (responseResult.closed) {
         return;
@@ -83,7 +83,7 @@ export class EasyNetworkStub {
    * @param parser The optional function that parses the string found by the matcher into any type you want.
    */
   public addParameterType(name: string, matcher: ParamMatcher, type: ParamType, parser: (v: string) => any = s => s) {
-    this.config.parameterTypes.splice(0, 0, { name, matcher, parser, type });
+    this._config.parameterTypes.splice(0, 0, { name, matcher, parser, type });
   }
 
   /**
@@ -114,11 +114,11 @@ export class EasyNetworkStub {
       const segments = route.split(/(?=[/?&])(?![^{]*})/).filter(x => x !== '/');
       const params: RouteParam[] = [];
       const queryParams: QueryParam[] = [];
-      const rgxString = buildStubRegex(segments, params, queryParams, this.config);
+      const rgxString = buildStubRegex(segments, params, queryParams, this._config);
 
       const regx = new RegExp(rgxString, 'i');
 
-      this.config.stubs.push({
+      this._config.stubs.push({
         regx,
         response,
         params,
