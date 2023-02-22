@@ -1,6 +1,7 @@
 import { Config } from '../../models/config.js';
 import { Request } from '../../models/request.js';
 import { RouteParams } from '../../models/route-params.js';
+import { cloneRequestHeaders } from './clone-request-headers.js';
 import { failBecauseOfNotOrWrongMockedRoute } from './fail-because-of-not-or-wrong-mocked-route.js';
 import { getAllMatchingStubsAndTheirSpecificity } from './get-all-matching-stubs-and-their-specificity.js';
 import { logErrorAndReplyWithErrorCode } from './log-error-and-reply-with-error-code.js';
@@ -39,10 +40,11 @@ export const tryGetResponseForRequest = async (req: Request, config: Config): Pr
     return { closed: true };
   }
   const parsedBody = parseRequestBody(req);
+  const headers = cloneRequestHeaders(req);
 
   let response: any;
   try {
-    response = await stub.response({ body: parsedBody, params: paramMap });
+    response = await stub.response({ body: parsedBody, params: paramMap, headers });
   } catch (e: any) {
     logErrorAndReplyWithErrorCode(stub, req, e, config);
     return { closed: true };
