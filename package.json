@@ -17,6 +17,7 @@
   "main": "./lib/cjs/index.js",
   "prettier": "@awdware/prettier-config",
   "scripts": {
+    "preinstall": "npx only-allow pnpm",
     "lint": "pnpm eslint ./src/**",
     "test": "jest",
     "prebuild": "pnpm rimraf lib",
