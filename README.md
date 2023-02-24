@@ -5,16 +5,19 @@
 
 # easy-network-stub
 
-An easy class to mock a lot of network requests in any e2e framework.
+An easy class to mock a lot of network requests in any e2e framework or in rapid prototyping.
 
 ## Framework specific packages 🧪
 
 - [Cypress](https://github.com/LoaderB0T/cypress-easy-network-stub)
 - [Playwright](https://github.com/LoaderB0T/playwright-easy-network-stub)
+- [Angular](https://github.com/MaSch0212/ng-httpclient-easy-network-stub) (third party & for rapid prototyping)
 
 ## Motivation 💥
 
 When running tests in e2e frameworks, sometimes you want to mock all network requests. Especially when running tests in a CI environment. This package provides an easy and type safe way to mock network requests for a whole API.
+
+Also, when you are prototyping a new feature, you might want to mock a whole API to get a feeling for the UI. This package provides an easy way to do so.
 
 ## Features 🔥
 
@@ -42,7 +45,7 @@ The primary use case for this package is to create a mock server for your tests 
 
 You can find usage examples in the existing framework-specific wrappers for this package: [Playwright](https://github.com/LoaderB0T/playwright-easy-network-stub) or [Cypress](https://github.com/LoaderB0T/cypress-easy-network-stub)
 
-## Strongly typed api parameters:
+## Strongly typed api parameters
 
 You can add types to parameters and they will be parsed. Out of box 'string', 'number' and 'boolean' are supported. You can add your own types and parsers though.
 
