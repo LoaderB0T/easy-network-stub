@@ -21,14 +21,16 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node-version }}
+      - name: Install pnpm
+        run: npm i -g pnpm
       - name: Install
-        run: yarn
+        run: pnpm i
       - name: Build
-        run: yarn run build
+        run: pnpm run build
       - name: Lint
-        run: yarn run lint
+        run: pnpm run lint
       - name: Test
-        run: yarn run test
+        run: pnpm run test
       - name: Upload Test Results
         if: always()
         uses: actions/upload-artifact@v2
