@@ -10,7 +10,7 @@ export const buildStubRegexForSegment = (rawSegment: string, params: RouteParam[
   const { prefix, segment } = removePrefixIfExists(rawSegment);
   const paramType: ParamType = prefix === '/' || prefix === '' ? 'route' : 'query';
 
-  const paramMatch = segment.match(/{(\w+)(\??)((?:[:]\w+)?)((?:\[\])?)}/);
+  const paramMatch = RegExp(/{(\w+)(\??)((?::\w+)?)((?:\[\])?)}/).exec(segment);
   if (paramMatch) {
     const paramName = paramMatch[1];
     const isOptionalParameter = paramMatch[2] === '?';
