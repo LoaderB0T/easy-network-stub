@@ -8,7 +8,10 @@ import { logErrorAndReplyWithErrorCode } from './log-error-and-reply-with-error-
 import { parseRequestBody } from './parse-request-body.js';
 import { parseRequestParameters } from './parse-request-params.js';
 
-export const tryGetResponseForRequest = async (req: Request, config: Config): Promise<{ closed: boolean; response?: any }> => {
+export const tryGetResponseForRequest = async (
+  req: Request,
+  config: Config
+): Promise<{ closed: boolean; response?: any }> => {
   const splitUrl = req.url.split('?');
   const urlWithoutQueryParams = splitUrl[0];
 
@@ -36,7 +39,12 @@ export const tryGetResponseForRequest = async (req: Request, config: Config): Pr
     stack = new Error().stack!;
     paramMap = parseRequestParameters(stub, req.url, config);
   } catch (e: unknown) {
-    failBecauseOfNotOrWrongMockedRoute(req, [e instanceof Error ? e.message : (e as any)], config, stack!);
+    failBecauseOfNotOrWrongMockedRoute(
+      req,
+      [e instanceof Error ? e.message : (e as any)],
+      config,
+      stack!
+    );
     return { closed: true };
   }
   const parsedBody = parseRequestBody(req);

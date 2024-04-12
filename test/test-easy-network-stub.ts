@@ -7,7 +7,13 @@ import { FakeNetworkIntercept } from './fake-network-intercept';
  * Uses the FakeNetworkIntercept class to simulate network calls.
  */
 export class TestEasyNetworkStub extends EasyNetworkStub {
-  public lastError: ErrorLog = { message: '', method: '', url: '', request: {}, registeredStubs: [] };
+  public lastError: ErrorLog = {
+    message: '',
+    method: '',
+    url: '',
+    request: {},
+    registeredStubs: [],
+  };
 
   /**
    * A class to intercept and stub all calls to a certain api path.
@@ -40,11 +46,16 @@ export class TestEasyNetworkStub extends EasyNetworkStub {
             body: route.body,
             headers: route.headers,
             url: route.url,
-            reply: r => route.reply({ statusCode: r.statusCode, body: JSON.stringify(r.body), headers: r.headers })
+            reply: r =>
+              route.reply({
+                statusCode: r.statusCode,
+                body: JSON.stringify(r.body),
+                headers: r.headers,
+              }),
           });
         });
       },
-      errorLogger: error => (this.lastError = error)
+      errorLogger: error => (this.lastError = error),
     });
   }
 }

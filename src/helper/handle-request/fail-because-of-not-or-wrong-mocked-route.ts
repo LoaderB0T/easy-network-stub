@@ -16,7 +16,7 @@ export const failBecauseOfNotOrWrongMockedRoute = (
     request: req,
     registeredStubs: config.stubs,
     url: req.url,
-    stack
+    stack,
   });
   req.destroy();
   config.failer(`Route not mocked: [${req.method}] ${req.url}`);

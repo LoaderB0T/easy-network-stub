@@ -22,14 +22,16 @@ describe('Failed Requests', () => {
         statusCode: 400,
         content: 'Example error message',
         headers: {
-          'x-error-code': '2'
-        }
+          'x-error-code': '2',
+        },
       } as ErrorResponse<string>);
     });
     let error: any;
-    await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all' }).catch(e => {
-      error = e;
-    });
+    await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all' }).catch(
+      e => {
+        error = e;
+      }
+    );
     expect(testEasyNetworkStub.lastError.message).toBe('');
     expect(error).toBe('"Example error message"');
   });

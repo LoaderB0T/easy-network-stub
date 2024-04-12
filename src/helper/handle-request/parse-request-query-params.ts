@@ -25,7 +25,9 @@ export const parseRequestQueryParam = (
       paramMap[queryParam.name].push(...paramsWithValues);
     } else {
       if (paramsWithValues.length > 1) {
-        throw new Error(`\nQuery parameter '${queryParam.name}' has multiple values for url '${url}' but is not marked as array`);
+        throw new Error(
+          `\nQuery parameter '${queryParam.name}' has multiple values for url '${url}' but is not marked as array`
+        );
       }
       paramMap[queryParam.name] = paramsWithValues[0];
     }

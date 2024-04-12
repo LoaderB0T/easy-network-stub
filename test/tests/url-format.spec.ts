@@ -51,9 +51,11 @@ describe('Url Format', () => {
 
   test('Regex: base slash both', async () => {
     // Slash at beginning in regex not possible when call (url) does not have the slash!
-    await testWrap(/\/MyServer\/api\/Blog\//, 'posts/all', 'MyServer/api/Blog/posts/all').catch(e => {
-      expect(e.message).toBe('This fake network interceptor does not handle real network calls.');
-    });
+    await testWrap(/\/MyServer\/api\/Blog\//, 'posts/all', 'MyServer/api/Blog/posts/all').catch(
+      e => {
+        expect(e.message).toBe('This fake network interceptor does not handle real network calls.');
+      }
+    );
   });
 
   test('Regex: url slash beginning', async () => {

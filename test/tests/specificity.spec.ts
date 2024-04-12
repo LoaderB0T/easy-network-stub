@@ -34,17 +34,35 @@ describe('Methods', () => {
     testEasyNetworkStub.stub('GET', 'posts/all?{a}&{b}&{c}&{d}', () => {
       return 2;
     });
-    const response1 = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all' });
+    const response1 = await parseFetch(fakeNetwork, {
+      method: 'GET',
+      url: 'MyServer/api/Blog/posts/all',
+    });
     expect(response1).toBe(6);
-    const response2 = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all?a' });
+    const response2 = await parseFetch(fakeNetwork, {
+      method: 'GET',
+      url: 'MyServer/api/Blog/posts/all?a',
+    });
     expect(response2).toBe(5);
-    const response3 = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all?a&b' });
+    const response3 = await parseFetch(fakeNetwork, {
+      method: 'GET',
+      url: 'MyServer/api/Blog/posts/all?a&b',
+    });
     expect(response3).toBe(4);
-    const response4 = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all?a&b&c' });
+    const response4 = await parseFetch(fakeNetwork, {
+      method: 'GET',
+      url: 'MyServer/api/Blog/posts/all?a&b&c',
+    });
     expect(response4).toBe(3);
-    const response5 = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all?a&b&c&d' });
+    const response5 = await parseFetch(fakeNetwork, {
+      method: 'GET',
+      url: 'MyServer/api/Blog/posts/all?a&b&c&d',
+    });
     expect(response5).toBe(2);
-    const response6 = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all?a&b&c&d&e' });
+    const response6 = await parseFetch(fakeNetwork, {
+      method: 'GET',
+      url: 'MyServer/api/Blog/posts/all?a&b&c&d&e',
+    });
     expect(response6).toBe(1);
   });
 
@@ -67,17 +85,35 @@ describe('Methods', () => {
     testEasyNetworkStub.stub('GET', 'posts/all?{a?}&{b?}&{c?}&{d?}', () => {
       return 2;
     });
-    const response1 = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all' });
+    const response1 = await parseFetch(fakeNetwork, {
+      method: 'GET',
+      url: 'MyServer/api/Blog/posts/all',
+    });
     expect(response1).toBe(6);
-    const response2 = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all?a' });
+    const response2 = await parseFetch(fakeNetwork, {
+      method: 'GET',
+      url: 'MyServer/api/Blog/posts/all?a',
+    });
     expect(response2).toBe(5);
-    const response3 = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all?a&b' });
+    const response3 = await parseFetch(fakeNetwork, {
+      method: 'GET',
+      url: 'MyServer/api/Blog/posts/all?a&b',
+    });
     expect(response3).toBe(4);
-    const response4 = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all?a&b&c' });
+    const response4 = await parseFetch(fakeNetwork, {
+      method: 'GET',
+      url: 'MyServer/api/Blog/posts/all?a&b&c',
+    });
     expect(response4).toBe(3);
-    const response5 = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all?a&b&c&d' });
+    const response5 = await parseFetch(fakeNetwork, {
+      method: 'GET',
+      url: 'MyServer/api/Blog/posts/all?a&b&c&d',
+    });
     expect(response5).toBe(2);
-    const response6 = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all?a&b&c&d&e' });
+    const response6 = await parseFetch(fakeNetwork, {
+      method: 'GET',
+      url: 'MyServer/api/Blog/posts/all?a&b&c&d&e',
+    });
     expect(response6).toBe(1);
   });
 
@@ -100,17 +136,35 @@ describe('Methods', () => {
     testEasyNetworkStub.stub('GET', 'posts/all?{a}&{b?}&{c?}&{d}', () => {
       return 2;
     });
-    const response1 = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all' });
+    const response1 = await parseFetch(fakeNetwork, {
+      method: 'GET',
+      url: 'MyServer/api/Blog/posts/all',
+    });
     expect(response1).toBe(6);
-    const response2 = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all?a' });
+    const response2 = await parseFetch(fakeNetwork, {
+      method: 'GET',
+      url: 'MyServer/api/Blog/posts/all?a',
+    });
     expect(response2).toBe(5);
-    const response3 = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all?a&b' });
+    const response3 = await parseFetch(fakeNetwork, {
+      method: 'GET',
+      url: 'MyServer/api/Blog/posts/all?a&b',
+    });
     expect(response3).toBe(4);
-    const response4 = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all?a&b&c' });
+    const response4 = await parseFetch(fakeNetwork, {
+      method: 'GET',
+      url: 'MyServer/api/Blog/posts/all?a&b&c',
+    });
     expect(response4).toBe(3);
-    const response5 = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all?a&b&c&d' });
+    const response5 = await parseFetch(fakeNetwork, {
+      method: 'GET',
+      url: 'MyServer/api/Blog/posts/all?a&b&c&d',
+    });
     expect(response5).toBe(2);
-    const response6 = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all?a&b&c&d&e' });
+    const response6 = await parseFetch(fakeNetwork, {
+      method: 'GET',
+      url: 'MyServer/api/Blog/posts/all?a&b&c&d&e',
+    });
     expect(response6).toBe(1);
   });
 
@@ -119,19 +173,31 @@ describe('Methods', () => {
       return true;
     });
     // one time we check the positive
-    const response = await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all/something' });
+    const response = await parseFetch(fakeNetwork, {
+      method: 'GET',
+      url: 'MyServer/api/Blog/posts/all/something',
+    });
     expect(response).toBe(true);
 
-    await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all/something/else' }).catch(e => e);
-    expect(testEasyNetworkStub.lastError.message).toBe('Route not mocked: [GET] MyServer/api/Blog/posts/all/something/else');
+    await parseFetch(fakeNetwork, {
+      method: 'GET',
+      url: 'MyServer/api/Blog/posts/all/something/else',
+    }).catch(e => e);
+    expect(testEasyNetworkStub.lastError.message).toBe(
+      'Route not mocked: [GET] MyServer/api/Blog/posts/all/something/else'
+    );
   });
 
   test('Route must match fully: too short not matched', async () => {
     testEasyNetworkStub.stub('GET', 'posts/all/something', () => {
       return true;
     });
-    await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all' }).catch(e => e);
-    expect(testEasyNetworkStub.lastError.message).toBe('Route not mocked: [GET] MyServer/api/Blog/posts/all');
+    await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all' }).catch(
+      e => e
+    );
+    expect(testEasyNetworkStub.lastError.message).toBe(
+      'Route not mocked: [GET] MyServer/api/Blog/posts/all'
+    );
   });
 
   // For now this is not supported
@@ -139,7 +205,12 @@ describe('Methods', () => {
     testEasyNetworkStub.stub('GET', 'posts/all/something', () => {
       return true;
     });
-    await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/new/posts/all/something' }).catch(e => e);
-    expect(testEasyNetworkStub.lastError.message).toBe('Route not mocked: [GET] MyServer/api/Blog/new/posts/all/something');
+    await parseFetch(fakeNetwork, {
+      method: 'GET',
+      url: 'MyServer/api/Blog/new/posts/all/something',
+    }).catch(e => e);
+    expect(testEasyNetworkStub.lastError.message).toBe(
+      'Route not mocked: [GET] MyServer/api/Blog/new/posts/all/something'
+    );
   });
 });

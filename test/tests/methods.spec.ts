@@ -21,7 +21,12 @@ describe('Methods', () => {
     });
     await parseFetch(fakeNetwork, { method: 'GET', url: 'MyServer/api/Blog/posts/all?limit=100' });
     expect(testEasyNetworkStub.lastError.message).toBe('');
-    await parseFetch(fakeNetwork, { method: 'POST', url: 'MyServer/api/Blog/posts/all?limit=100' }).catch(e => e);
-    expect(testEasyNetworkStub.lastError.message).toBe('Route not mocked: [POST] MyServer/api/Blog/posts/all?limit=100');
+    await parseFetch(fakeNetwork, {
+      method: 'POST',
+      url: 'MyServer/api/Blog/posts/all?limit=100',
+    }).catch(e => e);
+    expect(testEasyNetworkStub.lastError.message).toBe(
+      'Route not mocked: [POST] MyServer/api/Blog/posts/all?limit=100'
+    );
   });
 });

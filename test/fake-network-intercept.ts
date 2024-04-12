@@ -34,7 +34,7 @@ export class FakeNetworkIntercept {
               resolve(r);
             }
           },
-          destroy: () => reject()
+          destroy: () => reject(),
         });
       });
     }

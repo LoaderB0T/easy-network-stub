@@ -9,14 +9,15 @@ export const buildQueryParamRegex = (
   paramName: string,
   paramValueType: string
 ): string => {
-  const getQueryMatcher = (valueMatcher: string) => new RegExp(`[?&]${paramName}(?:=(?:${valueMatcher})?)?(?=$|&)`, 'gi');
+  const getQueryMatcher = (valueMatcher: string) =>
+    new RegExp(`[?&]${paramName}(?:=(?:${valueMatcher})?)?(?=$|&)`, 'gi');
   queryParams.push({
     name: paramName,
     type: paramValueType,
     optional: isOptionalParameter,
     isArray,
     regex: getQueryMatcher(knownParameter.matcher),
-    invalidRegex: getQueryMatcher('(\\w+)')
+    invalidRegex: getQueryMatcher('(\\w+)'),
   });
   /**
    * Query parameter regex explanation:

@@ -27,7 +27,7 @@ export class EasyNetworkStub {
     failer: (error: string | Error) => {
       throw error;
     },
-    parameterTypes: []
+    parameterTypes: [],
   };
 
   /**
@@ -69,7 +69,9 @@ export class EasyNetworkStub {
         return;
       }
 
-      const response = config.responseProcessor ? config.responseProcessor(responseResult.response) : responseResult.response;
+      const response = config.responseProcessor
+        ? config.responseProcessor(responseResult.response)
+        : responseResult.response;
       req.reply({ statusCode: 200, body: response, headers });
 
       return response;
@@ -82,7 +84,12 @@ export class EasyNetworkStub {
    * @param matcher The regex matching group that matches the parameter. Eg: "([a-z]\d+)"
    * @param parser The optional function that parses the string found by the matcher into any type you want.
    */
-  public addParameterType(name: string, matcher: ParamMatcher, type: ParamType, parser: (v: string) => any = s => s) {
+  public addParameterType(
+    name: string,
+    matcher: ParamMatcher,
+    type: ParamType,
+    parser: (v: string) => any = s => s
+  ) {
     this._config.parameterTypes.splice(0, 0, { name, matcher, parser, type });
   }
 
@@ -92,7 +99,11 @@ export class EasyNetworkStub {
    * @param route The route that should be stubbed. Supports parameters in the form of {name:type}.
    * @param response The callback in which you can process the request and reply with the stub. When a Promise is returned, the stub response will be delayed until it is resolved.
    */
-  public stub<Route extends string>(method: HttpMethod, route: Route, response: RouteResponseCallback<Route, any>): void {
+  public stub<Route extends string>(
+    method: HttpMethod,
+    route: Route,
+    response: RouteResponseCallback<Route, any>
+  ): void {
     return this.stub2<any>()(method, route, response);
   }
 
@@ -110,7 +121,11 @@ export class EasyNetworkStub {
    * @returns The stub method with a body of type T.
    */
   public stub2<T>() {
-    return <Route extends string>(method: HttpMethod, route: Route, response: RouteResponseCallback<Route, T>): void => {
+    return <Route extends string>(
+      method: HttpMethod,
+      route: Route,
+      response: RouteResponseCallback<Route, T>
+    ): void => {
       const segments = route.split(/(?=[/?&])(?![^{]*})/).filter(x => x !== '/');
       const params: RouteParam[] = [];
       const queryParams: QueryParam[] = [];
@@ -124,7 +139,7 @@ export class EasyNetworkStub {
         params,
         queryParams,
         method,
-        friendlyName: route
+        friendlyName: route,
       });
     };
   }

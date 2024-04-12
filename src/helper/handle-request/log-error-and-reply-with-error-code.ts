@@ -4,9 +4,15 @@ import { ErrorResponse } from '../../models/error-response.js';
 import { Request } from '../../models/request.js';
 import { Stub } from '../../models/stub.js';
 
-export const logErrorAndReplyWithErrorCode = (stub: Stub<any, any>, req: Request, err: any, config: Config) => {
+export const logErrorAndReplyWithErrorCode = (
+  stub: Stub<any, any>,
+  req: Request,
+  err: any,
+  config: Config
+) => {
   const error = err as ErrorResponse<any>;
-  const errorContent = typeof error.content !== 'object' ? JSON.stringify(error.content) : error.content;
+  const errorContent =
+    typeof error.content !== 'object' ? JSON.stringify(error.content) : error.content;
   let errorHeaders = { ...headers };
   if (error.headers) {
     errorHeaders = { ...errorHeaders, ...error.headers };
@@ -23,7 +29,7 @@ export const logErrorAndReplyWithErrorCode = (stub: Stub<any, any>, req: Request
         `msg: ${err.message}\n` +
         'This is most likely a bug in your stub. (No statusCode was provided)',
       name: 'StubError',
-      stack: err.stack ?? new Error().stack
+      stack: err.stack ?? new Error().stack,
     };
     console.error(err);
     config.errorLogger({
@@ -32,9 +38,12 @@ export const logErrorAndReplyWithErrorCode = (stub: Stub<any, any>, req: Request
       request: req,
       registeredStubs: config.stubs,
       url: req.url,
-      stack: newErr.stack
+      stack: newErr.stack,
     });
-    req.reply({ statusCode: 500, body: JSON.stringify(errorContent ?? 'unknown error in mocked response') });
+    req.reply({
+      statusCode: 500,
+      body: JSON.stringify(errorContent ?? 'unknown error in mocked response'),
+    });
     config.failer(newErr);
   }
 };
