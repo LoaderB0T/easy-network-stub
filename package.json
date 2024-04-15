@@ -13,9 +13,13 @@
       "import": "./lib/esm/index.js",
       "require": "./lib/cjs/index.js"
     },
-    "ws": {
-      "import": "./lib/esm/ws/index.js.js",
-      "require": "./lib/cjs/ws/index.js.js"
+    "./ws": {
+      "import": "./lib/esm/ws/index.js",
+      "require": "./lib/cjs/ws/index.js"
+    },
+    "./stream": {
+      "import": "./lib/esm/stream/index.js",
+      "require": "./lib/cjs/stream/index.js"
     }
   },
   "main": "./lib/cjs/index.js",
@@ -35,12 +39,15 @@
     "@awdware/eslint-config-base": "^1.2.0",
     "@awdware/eslint-config-nodejs": "^1.0.0",
     "@awdware/prettier-config": "^1.0.0",
+    "@types/event-source-polyfill": "^1.0.5",
     "@types/jest": "^29.5.12",
     "@types/node": "^20.12.7",
     "@types/ws": "^8.5.10",
     "@typescript-eslint/eslint-plugin": "^7.6.0",
     "@typescript-eslint/parser": "^7.6.0",
     "eslint": "^9.0.0",
+    "event-source-polyfill": "^1.0.31",
+    "eventsource": "^2.0.2",
     "jest": "^29.7.0",
     "jest-junit": "^16.0.0",
     "prettier": "^3.2.5",
