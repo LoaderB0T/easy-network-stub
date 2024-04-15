@@ -32,13 +32,18 @@ export class HttpStreamResponse {
 
     // eslint-disable-next-line no-constant-condition
     while (true) {
+      port = this.getRandomPort();
       try {
         await this._tryListenOnPort(server, port);
         return { server, port };
       } catch (e) {
-        port++;
+        // Do nothing
       }
     }
+  }
+
+  private getRandomPort() {
+    return Math.floor(Math.random() * 15001) + 50000;
   }
 
   private _sseStart(res: Res) {
@@ -73,9 +78,9 @@ export class HttpStreamResponse {
     return `http://localhost:${this._port}`;
   }
 
-  public addResponseFragment<T>(responseFragment: T) {
+  public send<T>(responseFragment: T) {
     if (!this._res) {
-      throw new Error('No response available');
+      throw new Error('No response available. Did you forget to call/await init()?');
     }
 
     const prefix = this._kind === 'eventStream' ? 'data: ' : '';

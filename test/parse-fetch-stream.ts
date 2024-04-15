@@ -1,6 +1,6 @@
 import { RequestData } from 'easy-network-stub';
 import { FakeNetworkIntercept } from './fake-network-intercept.js';
-import { EventSourcePolyfill, MessageEvent } from 'event-source-polyfill';
+import { EventSourcePolyfill } from 'event-source-polyfill';
 import { parseFetch } from './parse-fetch.js';
 import ndjsonStream from 'can-ndjson-stream';
 
@@ -8,7 +8,6 @@ export function listenForEvents<T>(url: string, cb: (e: T) => void): Promise<Eve
   return new Promise<EventSourcePolyfill>((resolve, reject) => {
     const source = new EventSourcePolyfill(url);
     source.addEventListener('open', e => {
-      console.log(e);
       resolve(source);
     });
     source.addEventListener('error', e => {
@@ -30,7 +29,6 @@ export function listenForNdJSON<T>(
         return ndjsonStream(response.body); //ndjsonStream parses the response.body
       })
       .then(stream => {
-        resolve({ close: () => stream.cancel() });
         const reader = stream.getReader();
         let read: any;
         reader.read().then(
@@ -42,6 +40,9 @@ export function listenForNdJSON<T>(
             reader.read().then(read);
           })
         );
+        setTimeout(() => {
+          resolve({ close: () => stream.cancel() });
+        }, 100);
       });
   });
 }

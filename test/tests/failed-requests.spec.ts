@@ -1,7 +1,7 @@
 import { FakeNetworkIntercept } from '../fake-network-intercept.js';
 import { afterEachLog } from '../log.js';
 import { parseFetch } from '../parse-fetch.js';
-import { ErrorResponse } from '../../src/models/error-response.js';
+import { ErrorResponse } from 'easy-network-stub';
 import { TestEasyNetworkStub } from '../test-easy-network-stub.js';
 
 describe('Failed Requests', () => {

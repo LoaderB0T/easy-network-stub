@@ -7,7 +7,6 @@ import {
 } from '../parse-fetch-stream.js';
 import { TestEasyNetworkStub } from '../test-easy-network-stub.js';
 import { HttpStreamResponse, StreamResponseHandler } from 'easy-network-stub/stream';
-import { MessageEvent } from 'event-source-polyfill';
 
 function expectValueAsync(value: any | (() => any), toBeValue: any, timeOut = 1000) {
   const interval = 10;
@@ -57,12 +56,12 @@ describe('Streaming', () => {
       received.push(JSON.parse(e));
     });
 
-    stream.addResponseFragment({ data: 'Hello' });
+    stream.send({ data: 'Hello' });
 
     await expectValueAsync(() => received.length, 1);
     await expectValueAsync(() => received[0], { data: 'Hello' });
 
-    stream.addResponseFragment({ data: 'World' });
+    stream.send({ data: 'World' });
 
     await expectValueAsync(() => received.length, 2);
     await expectValueAsync(() => received[1], { data: 'World' });
@@ -90,9 +89,9 @@ describe('Streaming', () => {
         res = e;
       }
     );
-    srh.addResponseFragment('Hello');
+    srh.send('Hello');
     await expectValueAsync(() => res, 'Hello');
-    srh.addResponseFragment(`World${id}`);
+    srh.send(`World${id}`);
     await expectValueAsync(() => res, `World1`);
     listener.close();
     srh.close();
@@ -106,9 +105,7 @@ describe('Streaming', () => {
       received.push(e);
     });
 
-    srh.addResponseFragment(
-      JSON.stringify({ data: 'Hello' }) + '\n' + JSON.stringify({ data: 'Hello' }) + '\n'
-    );
+    srh.send(JSON.stringify({ data: 'Hello' }) + '\n' + JSON.stringify({ data: 'Hello' }) + '\n');
     await expectValueAsync(() => received.length, 2);
     srh.close();
   });

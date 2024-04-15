@@ -14,8 +14,8 @@ export class StreamResponseHandler extends CustomResponseHandler {
     req.reply({ statusCode: 302, headers: { location: this._stream.url } });
   }
 
-  public addResponseFragment(fragment: string): void {
-    this._stream.addResponseFragment(fragment);
+  public send<T>(fragment: T): void {
+    this._stream.send(fragment);
   }
 
   public close(): void {
