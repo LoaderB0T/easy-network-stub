@@ -2,6 +2,7 @@ import { headers, preflightHeaders } from './consts/headers.js';
 import { buildStubRegex } from './helper/add-stub/build-stub-regex.js';
 import { tryGetResponseForRequest } from './helper/handle-request/try-get-response-for-request.js';
 import { Config } from './models/config.js';
+import { CustomResponseHandler } from './models/custom-response-handler.js';
 import { HttpMethod } from './models/http-method.js';
 import { InitConfig } from './models/init-config.js';
 import { ParamMatcher, ParamType } from './models/parameter-type.js';
@@ -72,6 +73,12 @@ export class EasyNetworkStub {
       const response = config.responseProcessor
         ? config.responseProcessor(responseResult.response)
         : responseResult.response;
+
+      if (response instanceof CustomResponseHandler) {
+        await response.handle(req);
+        return;
+      }
+
       req.reply({ statusCode: 200, body: response, headers });
 
       return response;

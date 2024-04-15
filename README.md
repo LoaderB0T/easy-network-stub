@@ -31,7 +31,11 @@ Also, when you are prototyping a new feature, you might want to mock a whole API
 
 ✅ Supports failing of stubbed requests
 
-✅ No production dependencies
+✅ Supports EventSource & ndjson
+
+✅ Supports WebSockets (beta)
+
+✅ No production dependencies (You need to have playwright installed, of course)
 
 ✅ ESM & CJS exports
 

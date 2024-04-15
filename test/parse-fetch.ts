@@ -1,5 +1,6 @@
-import { RequestData } from '../src/models/request.js';
+import { RequestData } from 'easy-network-stub';
 import { FakeNetworkIntercept } from './fake-network-intercept.js';
+import { EventSourcePolyfill, MessageEvent } from 'event-source-polyfill';
 
 const debugLogging = false;
 
@@ -17,5 +18,16 @@ export const parseFetch = async (fakeNetwork: FakeNetworkIntercept, req: Request
       throw new Error();
     }
   });
+  if (fetchData.statusCode >= 300 && fetchData.statusCode < 400) {
+    const location = fetchData.headers?.location;
+    if (!location) {
+      throw new Error('No location header found in response.');
+    }
+    const redirectReq: RequestData = {
+      url: location,
+      method: req.method,
+    };
+    return redirectReq;
+  }
   return JSON.parse(fetchData.body);
 };
