@@ -31,6 +31,10 @@ Also, when you are prototyping a new feature, you might want to mock a whole API
 
 ✅ Supports failing of stubbed requests
 
+✅ Supports EventSource & ndjson
+
+✅ Supports WebSockets (beta)
+
 ✅ No production dependencies
 
 ✅ ESM & CJS exports

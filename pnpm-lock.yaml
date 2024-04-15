@@ -32,6 +32,9 @@ devDependencies:
   '@typescript-eslint/parser':
     specifier: ^7.6.0
     version: 7.6.0(eslint@9.0.0)(typescript@5.4.5)
+  can-ndjson-stream:
+    specifier: ^1.0.2
+    version: 1.0.2
   eslint:
     specifier: ^9.0.0
     version: 9.0.0
@@ -1358,6 +1361,16 @@ packages:
   /camelcase@6.3.0:
     resolution: {integrity: sha512-Gmy6FhYlCY7uOElZUSbxo2UCDH8owEk996gkbrpsgGtrJLM3J7jGxl9Ic7Qwwj4ivOE5AWZWRMecDdF7hqGjFA==}
     engines: {node: '>=10'}
+    dev: true
+
+  /can-namespace@1.0.0:
+    resolution: {integrity: sha512-1sBY/SLwwcmxz3NhyVhLjt2uD/dZ7V1mII82/MIXSDn5QXnslnosJnjlP8+yTx2uTCRvw1jlFDElRs4pX7AG5w==}
+    dev: true
+
+  /can-ndjson-stream@1.0.2:
+    resolution: {integrity: sha512-//tM8wcTV42SyD1JGua7WMVftZEeTwapcHJTTe3vJwuVywXD01CJbdEkgwRYjy2evIByVJV21ZKBdSv5ygIw1w==}
+    dependencies:
+      can-namespace: 1.0.0
     dev: true
 
   /caniuse-lite@1.0.30001609:

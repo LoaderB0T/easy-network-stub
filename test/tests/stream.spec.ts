@@ -1,10 +1,13 @@
 import { FakeNetworkIntercept } from '../fake-network-intercept.js';
 import { afterEachLog } from '../log.js';
-import { listenForEvents, parseFetchWithEventSource } from '../parse-fetch-stream.js';
-import { parseFetch } from '../parse-fetch.js';
+import {
+  listenForEvents,
+  listenForNdJSON,
+  parseFetchWithEventSource,
+} from '../parse-fetch-stream.js';
 import { TestEasyNetworkStub } from '../test-easy-network-stub.js';
 import { HttpStreamResponse, StreamResponseHandler } from 'easy-network-stub/stream';
-import { EventSourcePolyfill, MessageEvent } from 'event-source-polyfill';
+import { MessageEvent } from 'event-source-polyfill';
 
 function expectValueAsync(value: any | (() => any), toBeValue: any, timeOut = 1000) {
   const interval = 10;
@@ -50,8 +53,8 @@ describe('Streaming', () => {
     const stream = new HttpStreamResponse();
     await stream.init();
     const received: any[] = [];
-    const listener = await listenForEvents(stream.url, e => {
-      received.push(JSON.parse(e.data));
+    const listener = await listenForEvents<string>(stream.url, e => {
+      received.push(JSON.parse(e));
     });
 
     stream.addResponseFragment({ data: 'Hello' });
@@ -76,21 +79,37 @@ describe('Streaming', () => {
       return srh;
     });
     let res: any;
-    const listener = await parseFetchWithEventSource(
+    const listener = await parseFetchWithEventSource<string>(
+      'eventStream',
       fakeNetwork,
       {
         method: 'GET',
         url: 'MyServer/api/Blog/posts/1/stream',
       },
       e => {
-        res = e.data;
+        res = e;
       }
     );
     srh.addResponseFragment('Hello');
     await expectValueAsync(() => res, 'Hello');
     srh.addResponseFragment(`World${id}`);
     await expectValueAsync(() => res, `World1`);
-    srh.close();
     listener.close();
+    srh.close();
+  });
+
+  test('ndjson', async () => {
+    const srh = new HttpStreamResponse('ndjson');
+    await srh.init();
+    const received: any[] = [];
+    await listenForNdJSON<string>(srh.url, e => {
+      received.push(e);
+    });
+
+    srh.addResponseFragment(
+      JSON.stringify({ data: 'Hello' }) + '\n' + JSON.stringify({ data: 'Hello' }) + '\n'
+    );
+    await expectValueAsync(() => received.length, 2);
+    srh.close();
   });
 });

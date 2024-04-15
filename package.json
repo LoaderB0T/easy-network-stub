@@ -1,6 +1,6 @@
 {
   "name": "easy-network-stub",
-  "version": "6.2.0",
+  "version": "7.0.0-pre4",
   "repository": "https://github.com/LoaderB0T/easy-network-stub.git",
   "author": {
     "name": "Janik Schumacher (LoaderB0T)",
@@ -45,6 +45,7 @@
     "@types/ws": "^8.5.10",
     "@typescript-eslint/eslint-plugin": "^7.6.0",
     "@typescript-eslint/parser": "^7.6.0",
+    "can-ndjson-stream": "^1.0.2",
     "eslint": "^9.0.0",
     "event-source-polyfill": "^1.0.31",
     "eventsource": "^2.0.2",

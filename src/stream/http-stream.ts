@@ -4,12 +4,17 @@ type Res = http.ServerResponse<http.IncomingMessage> & {
   req: http.IncomingMessage;
 };
 
+export type StreamKind = 'eventStream' | 'ndjson';
+
 export class HttpStreamResponse {
   private _httpServer?: http.Server;
   private _port?: number;
   private _res?: Res;
+  private _kind: StreamKind;
 
-  constructor() {}
+  constructor(kind: StreamKind = 'eventStream') {
+    this._kind = kind;
+  }
 
   public async init() {
     const { server, port } = await this._createServer();
@@ -37,9 +42,11 @@ export class HttpStreamResponse {
 
   private _sseStart(res: Res) {
     res.writeHead(200, {
-      'Content-Type': 'text/event-stream',
+      'Content-Type': this._kind === 'eventStream' ? 'text/event-stream' : 'application/x-ndjson',
       'Cache-Control': 'no-cache',
       Connection: 'keep-alive',
+      'Access-Control-Allow-Origin': '*',
+      'access-control-allow-methods': '*',
     });
     res.write('\n');
   }
@@ -70,8 +77,11 @@ export class HttpStreamResponse {
       throw new Error('No response available');
     }
 
-    const res = this._res.write(
-      `data: ${typeof responseFragment === 'object' ? JSON.stringify(responseFragment) : responseFragment}\n\n`
+    const prefix = this._kind === 'eventStream' ? 'data: ' : '';
+    const suffix = this._kind === 'eventStream' ? '\n\n' : '\n';
+
+    this._res.write(
+      `${prefix}${typeof responseFragment === 'object' ? JSON.stringify(responseFragment) : responseFragment}${suffix}`
     );
   }
 
