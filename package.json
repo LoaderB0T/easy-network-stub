@@ -1,6 +1,6 @@
 {
   "name": "easy-network-stub",
-  "version": "7.0.1",
+  "version": "7.0.2",
   "repository": "https://github.com/LoaderB0T/easy-network-stub.git",
   "author": {
     "name": "Janik Schumacher (LoaderB0T)",
@@ -22,7 +22,7 @@
       "require": "./dist/cjs/stream/index.js"
     }
   },
-  "main": "./dist/cjs/index.js",
+  "main": "./dist/cjs/lib/index.js",
   "prettier": "@awdware/prettier-config",
   "scripts": {
     "preinstall": "npx only-allow pnpm",
