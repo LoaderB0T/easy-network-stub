@@ -1,5 +1,4 @@
-import { Request, RequestData } from '../src/models/request.js';
-import { Response } from '../src/models/response.js';
+import { Request, RequestData, Response } from 'easy-network-stub';
 import { TestEasyNetworkStub } from './test-easy-network-stub.js';
 
 type RequestHandler = (req: Request) => Promise<void>;
@@ -28,7 +27,7 @@ export class FakeNetworkIntercept {
         requestHandler.requestHandler({
           ...req,
           reply: r => {
-            if (!r.statusCode || r.statusCode < 200 || r.statusCode > 299) {
+            if (!r.statusCode || r.statusCode < 200 || r.statusCode > 399) {
               reject(r);
             } else {
               resolve(r);

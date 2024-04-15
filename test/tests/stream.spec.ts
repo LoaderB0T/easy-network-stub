@@ -1,28 +1,10 @@
 import { FakeNetworkIntercept } from '../fake-network-intercept.js';
 import { afterEachLog } from '../log.js';
+import { listenForEvents, parseFetchWithEventSource } from '../parse-fetch-stream.js';
 import { parseFetch } from '../parse-fetch.js';
 import { TestEasyNetworkStub } from '../test-easy-network-stub.js';
-import { HttpStreamResponse } from 'easy-network-stub/stream';
+import { HttpStreamResponse, StreamResponseHandler } from 'easy-network-stub/stream';
 import { EventSourcePolyfill, MessageEvent } from 'event-source-polyfill';
-
-function listenForEvents(
-  a: HttpStreamResponse,
-  cb: (e: MessageEvent) => void
-): Promise<EventSourcePolyfill> {
-  return new Promise<EventSourcePolyfill>((resolve, reject) => {
-    const source = new EventSourcePolyfill(a.url + '/init');
-    source.addEventListener('open', e => {
-      console.log(e);
-      resolve(source);
-    });
-    source.addEventListener('error', e => {
-      reject(e);
-    });
-    source.addEventListener('message', e => {
-      cb(e);
-    });
-  });
-}
 
 function expectValueAsync(value: any | (() => any), toBeValue: any, timeOut = 1000) {
   const interval = 10;
@@ -65,24 +47,50 @@ describe('Streaming', () => {
   });
 
   test('Stream mock works', async () => {
-    const a = new HttpStreamResponse();
-    await a.init();
+    const stream = new HttpStreamResponse();
+    await stream.init();
     const received: any[] = [];
-    const listener = await listenForEvents(a, e => {
+    const listener = await listenForEvents(stream.url, e => {
       received.push(JSON.parse(e.data));
     });
 
-    a.addResponseFragment({ data: 'Hello' });
+    stream.addResponseFragment({ data: 'Hello' });
 
     await expectValueAsync(() => received.length, 1);
     await expectValueAsync(() => received[0], { data: 'Hello' });
 
-    a.addResponseFragment({ data: 'World' });
+    stream.addResponseFragment({ data: 'World' });
 
     await expectValueAsync(() => received.length, 2);
     await expectValueAsync(() => received[1], { data: 'World' });
 
     listener.close();
-    a.close();
+    stream.close();
+  });
+
+  test('Use stream in networkStub', async () => {
+    const srh = new StreamResponseHandler();
+    let id = 0;
+    testEasyNetworkStub.stub('GET', 'posts/{id:number}/stream', ({ params }) => {
+      id = params.id;
+      return srh;
+    });
+    let res: any;
+    const listener = await parseFetchWithEventSource(
+      fakeNetwork,
+      {
+        method: 'GET',
+        url: 'MyServer/api/Blog/posts/1/stream',
+      },
+      e => {
+        res = e.data;
+      }
+    );
+    srh.addResponseFragment('Hello');
+    await expectValueAsync(() => res, 'Hello');
+    srh.addResponseFragment(`World${id}`);
+    await expectValueAsync(() => res, `World1`);
+    srh.close();
+    listener.close();
   });
 });

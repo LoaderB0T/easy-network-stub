@@ -1,5 +1,4 @@
-import { EasyNetworkStub } from '../src/easy-network-stub';
-import { ErrorLog } from '../src/models/error-log';
+import { EasyNetworkStub, ErrorLog } from 'easy-network-stub';
 import { FakeNetworkIntercept } from './fake-network-intercept';
 
 /**

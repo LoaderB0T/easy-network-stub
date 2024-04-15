@@ -10,29 +10,29 @@
   "type": "module",
   "exports": {
     ".": {
-      "import": "./lib/esm/index.js",
-      "require": "./lib/cjs/index.js"
+      "import": "./dist/esm/lib/index.js",
+      "require": "./dist/cjs/lib/index.js"
     },
     "./ws": {
-      "import": "./lib/esm/ws/index.js",
-      "require": "./lib/cjs/ws/index.js"
+      "import": "./dist/esm/ws/index.js",
+      "require": "./dist/cjs/ws/index.js"
     },
     "./stream": {
-      "import": "./lib/esm/stream/index.js",
-      "require": "./lib/cjs/stream/index.js"
+      "import": "./dist/esm/stream/index.js",
+      "require": "./dist/cjs/stream/index.js"
     }
   },
-  "main": "./lib/cjs/index.js",
+  "main": "./dist/cjs/index.js",
   "prettier": "@awdware/prettier-config",
   "scripts": {
     "preinstall": "npx only-allow pnpm",
     "lint": "pnpm eslint ./src/**",
     "test": "jest",
-    "prebuild": "pnpm rimraf lib",
+    "prebuild": "pnpm rimraf dist",
     "build": "pnpm build-esm && pnpm build-cjs",
     "build-base": "tsc -p .",
-    "build-esm": "pnpm build-base --outDir lib/esm",
-    "build-cjs": "pnpm build-base --outDir lib/cjs --module commonjs && pnpm fix-cjs",
+    "build-esm": "pnpm build-base --outDir dist/esm",
+    "build-cjs": "pnpm build-base --outDir dist/cjs --module commonjs && pnpm fix-cjs",
     "fix-cjs": "node --loader ts-node/esm ./fix-cjs.ts"
   },
   "devDependencies": {

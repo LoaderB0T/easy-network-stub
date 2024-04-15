@@ -15,25 +15,14 @@ export class HttpStreamResponse {
     const { server, port } = await this._createServer();
     this._httpServer = server;
     this._port = port;
-    console.log(
-      `Created fake server for response on: ${this._httpServer.address()?.toString()}\n\n`
-    );
   }
 
   private async _createServer() {
     let port = 3000;
 
     const server = http.createServer(async (req, res) => {
-      // get URI path
-      const uri = new URL('init', 'http://localhost').pathname;
-
-      // return response
-      switch (uri) {
-        case '/init':
-          this._sseStart(res);
-          this._res = res;
-          break;
-      }
+      this._sseStart(res);
+      this._res = res;
     });
 
     while (true) {
@@ -60,11 +49,9 @@ export class HttpStreamResponse {
       server
         .listen(port)
         .on('listening', () => {
-          console.log(`Listening on port: ${port}`);
           resolve();
         })
         .on('error', e => {
-          console.log(`Error on port: ${port}`);
           reject(e);
         });
     });
@@ -83,8 +70,9 @@ export class HttpStreamResponse {
       throw new Error('No response available');
     }
 
-    const res = this._res.write(`data: ${JSON.stringify(responseFragment)}\n\n`);
-    console.log(`Response sent: ${res}`);
+    const res = this._res.write(
+      `data: ${typeof responseFragment === 'object' ? JSON.stringify(responseFragment) : responseFragment}\n\n`
+    );
   }
 
   public close() {
