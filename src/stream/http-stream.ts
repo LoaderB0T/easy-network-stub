@@ -10,7 +10,7 @@ export class HttpStreamResponse {
   private _httpServer?: http.Server;
   private _port?: number;
   private _res?: Res;
-  private _kind: StreamKind;
+  private readonly _kind: StreamKind;
 
   constructor(kind: StreamKind = 'eventStream') {
     this._kind = kind;
@@ -30,6 +30,7 @@ export class HttpStreamResponse {
       this._res = res;
     });
 
+    // eslint-disable-next-line no-constant-condition
     while (true) {
       try {
         await this._tryListenOnPort(server, port);

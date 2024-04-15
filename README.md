@@ -35,7 +35,7 @@ Also, when you are prototyping a new feature, you might want to mock a whole API
 
 ✅ Supports WebSockets (beta)
 
-✅ No production dependencies
+✅ No production dependencies (You need to have playwright installed, of course)
 
 ✅ ESM & CJS exports
 

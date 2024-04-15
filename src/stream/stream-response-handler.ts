@@ -2,7 +2,7 @@ import { CustomResponseHandler, Request } from 'easy-network-stub';
 import { HttpStreamResponse, StreamKind } from './http-stream';
 
 export class StreamResponseHandler extends CustomResponseHandler {
-  private _stream: HttpStreamResponse;
+  private readonly _stream: HttpStreamResponse;
 
   constructor(kind: StreamKind = 'eventStream') {
     super();
