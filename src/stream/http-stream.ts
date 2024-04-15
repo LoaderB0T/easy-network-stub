@@ -48,11 +48,12 @@ export class HttpStreamResponse {
 
   private _sseStart(res: Res) {
     res.writeHead(200, {
-      'Content-Type': this._kind === 'eventStream' ? 'text/event-stream' : 'application/x-ndjson',
-      'Cache-Control': 'no-cache',
-      Connection: 'keep-alive',
-      'Access-Control-Allow-Origin': '*',
+      'content-type': this._kind === 'eventStream' ? 'text/event-stream' : 'application/x-ndjson',
+      'cache-control': 'no-cache',
+      connection: 'keep-alive',
+      'access-control-allow-origin': '*',
       'access-control-allow-methods': '*',
+      'access-control-allow-headers': '*',
     });
     res.write('\n');
   }
