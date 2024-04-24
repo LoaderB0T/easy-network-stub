@@ -55,6 +55,7 @@ describe('Streaming', () => {
     const listener = await listenForEvents<string>(stream.url, e => {
       received.push(JSON.parse(e));
     });
+    await stream.waitForClientConnection();
 
     stream.send({ data: 'Hello' });
 
@@ -89,24 +90,26 @@ describe('Streaming', () => {
         res = e;
       }
     );
-    srh.send('Hello');
+    await srh.send('Hello');
     await expectValueAsync(() => res, 'Hello');
-    srh.send(`World${id}`);
+    await srh.send(`World${id}`);
     await expectValueAsync(() => res, `World1`);
     listener.close();
     srh.close();
   });
 
   test('ndjson', async () => {
-    const srh = new HttpStreamResponse('ndjson');
-    await srh.init();
+    const stream = new HttpStreamResponse('ndjson');
+    await stream.init();
     const received: any[] = [];
-    await listenForNdJSON<string>(srh.url, e => {
+    await listenForNdJSON<string>(stream.url, e => {
       received.push(e);
     });
-
-    srh.send(JSON.stringify({ data: 'Hello' }) + '\n' + JSON.stringify({ data: 'Hello' }) + '\n');
+    await stream.waitForClientConnection();
+    stream.send(
+      JSON.stringify({ data: 'Hello' }) + '\n' + JSON.stringify({ data: 'Hello' }) + '\n'
+    );
     await expectValueAsync(() => received.length, 2);
-    srh.close();
+    stream.close();
   });
 });
