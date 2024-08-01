@@ -5,7 +5,7 @@ import { compilerOptions } from './tsconfig.base.json';
 // Changes the tsconfig used for tests to tsconfig.spec.json
 const transform = defaultsESM.transform!;
 Object.keys(transform).forEach(key => {
-  const value = transform[key];
+  const value = transform[key as keyof typeof transform];
   if (Array.isArray(value)) {
     value[1].tsconfig = './tsconfig.spec.json';
   }
