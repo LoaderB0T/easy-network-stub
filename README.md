@@ -49,6 +49,21 @@ The primary use case for this package is to create a mock server for your tests 
 
 You can find usage examples in the existing framework-specific wrappers for this package: [Playwright](https://github.com/LoaderB0T/playwright-easy-network-stub) or [Cypress](https://github.com/LoaderB0T/cypress-easy-network-stub)
 
+# WebSockets
+
+When testing a WebSocket connection, you can use the `EasyWsStub` class. This helper will create a WebSocket server that your client connects to. You can then send messages to the client and receive messages from the client.
+
+```typescript
+import { EasyWsStub } from 'easy-network-stub/ws';
+
+const wsStub = new EasyWsStub(1337, 'connect');
+await wsStub.init();
+wsStub.send('{"value": "test123"}');
+
+
+wsStub.close();
+```
+
 ## Strongly typed api parameters
 
 You can add types to parameters and they will be parsed. Out of box 'string', 'number' and 'boolean' are supported. You can add your own types and parsers though.
