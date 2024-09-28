@@ -9,40 +9,5 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [18.x, 20.x]
-
-    steps:
-      - uses: actions/checkout@v2
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v2
-        with:
-          node-version: ${{ matrix.node-version }}
-      - name: Install pnpm
-        run: npm i -g pnpm
-      - name: Install
-        run: pnpm i
-      - name: Build
-        run: pnpm run build
-      - name: Lint
-        run: pnpm run lint
-      - name: Test
-        run: pnpm run test
-      - name: Upload Test Results
-        if: always()
-        uses: actions/upload-artifact@v2
-        with:
-          name: Test Results (${{ matrix.node-version }})
-          path: junit.xml
-  event_file:
-    name: 'Event File'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Upload
-        uses: actions/upload-artifact@v2
-        with:
-          name: Event File
-          path: ${{ github.event_path }}
+    uses: awdware/dev/.github/workflows/nodejs.yml@main
+    secrets: inherit
