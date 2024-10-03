@@ -1,4 +1,4 @@
-export type FlattenUnion<T> = {} extends T
+export type FlattenUnion<T> = unknown extends T
   ? never
   : {
       [K in keyof T]: T[K];
@@ -7,7 +7,7 @@ export type FlattenUnion<T> = {} extends T
 export type ExtractRouteParams<T extends string> =
   T extends `${string}{${infer Param}}${infer Rest}`
     ? FlattenUnion<GetParam<Param> & ExtractRouteParams<Rest>>
-    : {};
+    : never;
 
 // the ArrayBrackets infer is needed, because we want "?{foo?[]} "and not "?{foo[]?}"
 // We move any string behind the ? to the left (assuming only [] will be used there)

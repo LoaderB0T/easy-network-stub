@@ -1,10 +1,10 @@
+import { buildQueryParamRegex } from './build-query-param-regex.js';
+import { buildRouteParamRegex } from './build-route-param-regex.js';
+import { removePrefixIfExists } from './remove-prefix-if-exists.js';
 import { Config } from '../../models/config.js';
 import { ParamType } from '../../models/parameter-type.js';
 import { QueryParam } from '../../models/query-param.js';
 import { RouteParam } from '../../models/route-param.js';
-import { buildQueryParamRegex } from './build-query-param-regex.js';
-import { buildRouteParamRegex } from './build-route-param-regex.js';
-import { removePrefixIfExists } from './remove-prefix-if-exists.js';
 
 export const buildStubRegexForSegment = (
   rawSegment: string,

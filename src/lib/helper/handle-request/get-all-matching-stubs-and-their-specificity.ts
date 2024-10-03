@@ -1,5 +1,5 @@
-import { Stub } from '../../models/stub.js';
 import { StubSpecificity } from '../../models/stub-specificity.js';
+import { Stub } from '../../models/stub.js';
 
 export const getAllMatchingStubsAndTheirSpecificity = (
   stubs: Stub<any, any>[],

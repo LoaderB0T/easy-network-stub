@@ -60,7 +60,7 @@ export class HttpStreamResponse {
       }, 100);
     });
 
-    // eslint-disable-next-line no-constant-condition
+     
     while (true) {
       port = this.getRandomPort();
       try {

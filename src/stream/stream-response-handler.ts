@@ -1,4 +1,5 @@
 import { CustomResponseHandler, Request } from 'easy-network-stub';
+
 import { HttpStreamResponse, StreamKind } from './http-stream';
 
 export class StreamResponseHandler extends CustomResponseHandler {
