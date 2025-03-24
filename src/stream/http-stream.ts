@@ -60,7 +60,6 @@ export class HttpStreamResponse {
       }, 100);
     });
 
-     
     while (true) {
       port = this.getRandomPort();
       try {
@@ -125,5 +124,8 @@ export class HttpStreamResponse {
   public close() {
     this._res?.end();
     this._httpServer?.close();
+    this._initializeState = 'none';
+    this._clientConnected = false;
+    this._clientConnectedCallbacks.length = 0;
   }
 }

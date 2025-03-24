@@ -86,4 +86,30 @@ describe('Streaming', () => {
     await expectValueAsync(() => received.length, 2);
     stream.close();
   });
+
+  test('Reuse stream in second request', async () => {
+    const stream = new HttpStreamResponse('ndjson');
+    await stream.init();
+    const received: any[] = [];
+    await listenForNdJSON<string>(stream.url, e => {
+      received.push(e);
+    });
+    await stream.waitForClientConnection();
+    stream.send(
+      JSON.stringify({ data: 'Hello' }) + '\n' + JSON.stringify({ data: 'Hello' }) + '\n'
+    );
+    await expectValueAsync(() => received.length, 2);
+    stream.close();
+    await stream.init();
+
+    await listenForNdJSON<string>(stream.url, e => {
+      received.push(e);
+    });
+    await stream.waitForClientConnection();
+    stream.send(
+      JSON.stringify({ data: 'Hello' }) + '\n' + JSON.stringify({ data: 'Hello' }) + '\n'
+    );
+    await expectValueAsync(() => received.length, 4);
+    stream.close();
+  });
 });
