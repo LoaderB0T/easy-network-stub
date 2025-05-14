@@ -164,7 +164,7 @@ export class EasyNetworkStub {
     };
   }
 
-  public unregisterAllAtubs() {
+  public unregisterAll() {
     this._config.stubs = [];
   }
 }
