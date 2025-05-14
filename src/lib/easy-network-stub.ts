@@ -9,6 +9,8 @@ import { ParamMatcher, ParamType } from './models/parameter-type.js';
 import { QueryParam } from './models/query-param.js';
 import { RouteParam } from './models/route-param.js';
 import { RouteResponseCallback } from './models/route-response-callback.js';
+import { StubHandle } from './models/stub-handle.js';
+import { Stub } from './models/stub.js';
 
 export class EasyNetworkStub {
   private readonly _urlMatch: string | RegExp;
@@ -110,7 +112,7 @@ export class EasyNetworkStub {
     method: HttpMethod,
     route: Route,
     response: RouteResponseCallback<Route, any>
-  ): void {
+  ): StubHandle {
     return this.stub2<any>()(method, route, response);
   }
 
@@ -132,7 +134,7 @@ export class EasyNetworkStub {
       method: HttpMethod,
       route: Route,
       response: RouteResponseCallback<Route, T>
-    ): void => {
+    ): StubHandle => {
       const segments = route.split(/(?=[/?&])(?![^{]*})/).filter(x => x !== '/');
       const params: RouteParam[] = [];
       const queryParams: QueryParam[] = [];
@@ -140,14 +142,29 @@ export class EasyNetworkStub {
 
       const regx = new RegExp(rgxString, 'i');
 
-      this._config.stubs.push({
+      const newStub: Stub<any, any> = {
         regx,
         response,
         params,
         queryParams,
         method,
         friendlyName: route,
-      });
+      };
+
+      this._config.stubs.push(newStub);
+
+      return {
+        unregister: () => {
+          const index = this._config.stubs.indexOf(newStub);
+          if (index !== -1) {
+            this._config.stubs.splice(index, 1);
+          }
+        },
+      };
     };
+  }
+
+  public unregisterAllAtubs() {
+    this._config.stubs = [];
   }
 }
