@@ -54,7 +54,7 @@ describe('Unregister', () => {
     });
     expect(response1).toBe(1);
 
-    testEasyNetworkStub.unregisterAllAtubs();
+    testEasyNetworkStub.unregisterAll();
 
     testEasyNetworkStub.stub('GET', 'posts/all', () => {
       return 2;
