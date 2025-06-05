@@ -1,6 +1,6 @@
 {
   "name": "easy-network-stub",
-  "version": "7.3.1",
+  "version": "7.3.2",
   "repository": "https://github.com/LoaderB0T/easy-network-stub.git",
   "author": {
     "name": "Janik Schumacher (LoaderB0T)",
@@ -20,6 +20,17 @@
     "./stream": {
       "import": "./dist/esm/stream/index.js",
       "require": "./dist/cjs/stream/index.js"
+    }
+  },
+  "types": "./dist/esm/lib/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "ws": [
+        "./dist/esm/ws/index.d.ts"
+      ],
+      "stream": [
+        "./dist/esm/stream/index.d.ts"
+      ]
     }
   },
   "main": "./dist/cjs/lib/index.js",
