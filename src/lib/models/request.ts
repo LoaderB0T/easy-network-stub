@@ -9,6 +9,6 @@ export type RequestData = {
 };
 
 export type Request = RequestData & {
-  reply: (response: Response) => void;
+  reply: (response: Response) => void | Promise<void>;
   destroy: () => void;
 };

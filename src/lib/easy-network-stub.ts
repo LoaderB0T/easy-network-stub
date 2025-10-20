@@ -62,7 +62,7 @@ export class EasyNetworkStub {
 
     return config.interceptor(this._urlMatch, async req => {
       if (req.method.toUpperCase() === 'OPTIONS') {
-        req.reply({ statusCode: 200, headers: preflightHeaders });
+        await req.reply({ statusCode: 200, headers: preflightHeaders });
         return;
       }
 
@@ -81,7 +81,7 @@ export class EasyNetworkStub {
         return;
       }
 
-      req.reply({ statusCode: 200, body: response, headers });
+      await req.reply({ statusCode: 200, body: response, headers });
 
       return response;
     });
