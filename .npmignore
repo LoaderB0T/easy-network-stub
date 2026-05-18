@@ -1,8 +1,13 @@
+.claude
+.github
+.vscode
+node_modules
 src
 test
-.vscode
-.gitignore
-.npmignore
 eslint.config.mjs
+junit.xml
 tsconfig.json
-yarn.lock
+pnpm-lock.yaml
+pnpm-workspace.yaml
+tsconfig*.json
+vitest.config.ts
