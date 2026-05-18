@@ -2,7 +2,6 @@
   "compilerOptions": {
     "target": "ES2019",
     "module": "ESNext",
-    "baseUrl": "./",
     "lib": [
       "ES2019",
       "ESNext",
@@ -19,17 +18,16 @@
     "strictPropertyInitialization": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "moduleResolution": "node",
     "stripInternal": true,
     "paths": {
       "easy-network-stub": [
-        "src/lib/index.ts"
+        "./src/lib/index.ts"
       ],
       "easy-network-stub/stream": [
-        "src/stream/index.ts"
+        "./src/stream/index.ts"
       ],
       "easy-network-stub/ws": [
-        "src/ws/index.ts"
+        "./src/ws/index.ts"
       ]
     }
   }

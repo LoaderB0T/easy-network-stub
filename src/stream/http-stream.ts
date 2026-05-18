@@ -49,8 +49,6 @@ export class HttpStreamResponse {
   }
 
   private async _createServer() {
-    let port = 3000;
-
     const server = http.createServer(async (req, res) => {
       this._sseStart(res);
       this._res = res;
@@ -59,7 +57,8 @@ export class HttpStreamResponse {
         this._clientConnectedCallbacks.forEach(cb => cb());
       }, 100);
     });
-
+    
+    let port: number;
     while (true) {
       port = this.getRandomPort();
       try {

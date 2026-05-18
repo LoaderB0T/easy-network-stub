@@ -1,7 +1,8 @@
 src
 test
 .vscode
-.eslintignore
-.eslintrc.json
+.gitignore
+.npmignore
+eslint.config.mjs
 tsconfig.json
 yarn.lock

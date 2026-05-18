@@ -1,3 +1,4 @@
+import { beforeEach, describe, expect, test } from 'vitest';
 import { WebSocket } from 'ws';
 import { EasyWsStub } from 'easy-network-stub/ws';
 import { expectValueAsync } from './expect-value-async.js';
