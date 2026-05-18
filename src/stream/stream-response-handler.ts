@@ -1,6 +1,6 @@
 import { CustomResponseHandler, Request } from 'easy-network-stub';
 
-import { HttpStreamResponse, StreamKind } from './http-stream';
+import { HttpStreamResponse, StreamKind } from './http-stream.js';
 
 export class StreamResponseHandler extends CustomResponseHandler {
   private readonly _stream: HttpStreamResponse;

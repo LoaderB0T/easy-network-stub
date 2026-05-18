@@ -67,106 +67,106 @@ describe('Methods', () => {
     expect(response6).toBe(1);
   });
 
-  test('The more optional query params the better', async () => {
+  test('Registration order is respected with optional query params', async () => {
     testEasyNetworkStub.stub('GET', 'posts/all?{a?}&{b?}&{c?}', () => {
-      return 3;
+      return 1;
     });
     testEasyNetworkStub.stub('GET', 'posts/all?{a?}', () => {
-      return 5;
+      return 2;
     });
     testEasyNetworkStub.stub('GET', 'posts/all?{a?}&{b?}&{c?}&{d?}&{e?}', () => {
-      return 1;
+      return 3;
     });
     testEasyNetworkStub.stub('GET', 'posts/all?{a?}&{b?}', () => {
       return 4;
     });
     testEasyNetworkStub.stub('GET', 'posts/all', () => {
-      return 6;
+      return 5;
     });
     testEasyNetworkStub.stub('GET', 'posts/all?{a?}&{b?}&{c?}&{d?}', () => {
-      return 2;
+      return 6;
     });
     const response1 = await parseFetch(fakeNetwork, {
       method: 'GET',
       url: 'MyServer/api/Blog/posts/all',
     });
-    expect(response1).toBe(6);
+    expect(response1).toBe(1);
     const response2 = await parseFetch(fakeNetwork, {
       method: 'GET',
       url: 'MyServer/api/Blog/posts/all?a',
     });
-    expect(response2).toBe(5);
+    expect(response2).toBe(1);
     const response3 = await parseFetch(fakeNetwork, {
       method: 'GET',
       url: 'MyServer/api/Blog/posts/all?a&b',
     });
-    expect(response3).toBe(4);
+    expect(response3).toBe(1);
     const response4 = await parseFetch(fakeNetwork, {
       method: 'GET',
       url: 'MyServer/api/Blog/posts/all?a&b&c',
     });
-    expect(response4).toBe(3);
+    expect(response4).toBe(1);
     const response5 = await parseFetch(fakeNetwork, {
       method: 'GET',
       url: 'MyServer/api/Blog/posts/all?a&b&c&d',
     });
-    expect(response5).toBe(2);
+    expect(response5).toBe(3);
     const response6 = await parseFetch(fakeNetwork, {
       method: 'GET',
       url: 'MyServer/api/Blog/posts/all?a&b&c&d&e',
     });
-    expect(response6).toBe(1);
+    expect(response6).toBe(3);
   });
 
-  test('The more mixed query params the better', async () => {
+  test('Registration order is respected with mixed query params', async () => {
     testEasyNetworkStub.stub('GET', 'posts/all?{a?}&{b?}&{c}', () => {
-      return 3;
+      return 1;
     });
     testEasyNetworkStub.stub('GET', 'posts/all?{a}', () => {
-      return 5;
+      return 2;
     });
     testEasyNetworkStub.stub('GET', 'posts/all?{a?}&{b}&{c?}&{d?}&{e?}', () => {
-      return 1;
+      return 3;
     });
     testEasyNetworkStub.stub('GET', 'posts/all?{a}&{b?}', () => {
       return 4;
     });
     testEasyNetworkStub.stub('GET', 'posts/all', () => {
-      return 6;
+      return 5;
     });
     testEasyNetworkStub.stub('GET', 'posts/all?{a}&{b?}&{c?}&{d}', () => {
-      return 2;
+      return 6;
     });
     const response1 = await parseFetch(fakeNetwork, {
       method: 'GET',
       url: 'MyServer/api/Blog/posts/all',
     });
-    expect(response1).toBe(6);
+    expect(response1).toBe(5);
     const response2 = await parseFetch(fakeNetwork, {
       method: 'GET',
       url: 'MyServer/api/Blog/posts/all?a',
     });
-    expect(response2).toBe(5);
+    expect(response2).toBe(2);
     const response3 = await parseFetch(fakeNetwork, {
       method: 'GET',
       url: 'MyServer/api/Blog/posts/all?a&b',
     });
-    expect(response3).toBe(4);
+    expect(response3).toBe(3);
     const response4 = await parseFetch(fakeNetwork, {
       method: 'GET',
       url: 'MyServer/api/Blog/posts/all?a&b&c',
     });
-    expect(response4).toBe(3);
+    expect(response4).toBe(1);
     const response5 = await parseFetch(fakeNetwork, {
       method: 'GET',
       url: 'MyServer/api/Blog/posts/all?a&b&c&d',
     });
-    expect(response5).toBe(2);
+    expect(response5).toBe(3);
     const response6 = await parseFetch(fakeNetwork, {
       method: 'GET',
       url: 'MyServer/api/Blog/posts/all?a&b&c&d&e',
     });
-    expect(response6).toBe(1);
+    expect(response6).toBe(3);
   });
 
   test('Route must match fully: too long not matched', async () => {
@@ -199,6 +199,20 @@ describe('Methods', () => {
     expect(testEasyNetworkStub.lastError.message).toBe(
       'Route not mocked: [GET] MyServer/api/Blog/posts/all'
     );
+  });
+
+  test('First come, first served is not changed with optional query params', async () => {
+    testEasyNetworkStub.stub('GET', 'posts/all?{filter?:string}', () => {
+      return 1;
+    });
+    testEasyNetworkStub.stub('GET', 'posts/{id:string}', () => {
+      return 2;
+    });
+    const response = await parseFetch(fakeNetwork, {
+      method: 'GET',
+      url: 'MyServer/api/Blog/posts/all',
+    });
+    expect(response).toBe(1);
   });
 
   // For now this is not supported

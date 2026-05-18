@@ -10,13 +10,19 @@
   "type": "module",
   "exports": {
     ".": {
-      "import": "./dist/lib/index.js"
+      "types": "./dist/lib/index.d.ts",
+      "import": "./dist/lib/index.js",
+      "default": "./dist/lib/index.js"
     },
     "./ws": {
-      "import": "./dist/ws/index.js"
+      "types": "./dist/ws/index.d.ts",
+      "import": "./dist/ws/index.js",
+      "default": "./dist/ws/index.js"
     },
     "./stream": {
-      "import": "./dist/stream/index.js"
+      "types": "./dist/stream/index.d.ts",
+      "import": "./dist/stream/index.js",
+      "default": "./dist/stream/index.js"
     }
   },
   "types": "./dist/lib/index.d.ts",
@@ -32,7 +38,6 @@
   },
   "prettier": "@awdware/prettier-config",
   "scripts": {
-    "preinstall": "npx only-allow pnpm",
     "lint": "pnpm eslint ./src/**",
     "test": "vitest run",
     "prebuild": "pnpm rimraf dist",

@@ -24,7 +24,6 @@ export const getAllMatchingStubsAndTheirSpecificity = (
             );
             return false;
           }
-          specificity--;
           return true;
         } else {
           reasonsForNotMatching.push(
