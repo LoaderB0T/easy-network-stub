@@ -4,10 +4,10 @@
     "types": [
       "node"
     ],
-    "outDir": "dist",
+    "outDir": "./dist",
     "rootDir": "./src"
   },
   "include": [
-    "src/**/*.ts"
+    "./src/**/*.ts"
   ]
 }

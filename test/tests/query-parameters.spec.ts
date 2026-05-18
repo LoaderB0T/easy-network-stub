@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, describe, expect, test } from 'vitest';
 import { FakeNetworkIntercept } from '../fake-network-intercept.js';
 import { afterEachLog } from '../log.js';
 import { parseFetch } from '../parse-fetch.js';
