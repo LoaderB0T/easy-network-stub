@@ -9,3 +9,5 @@ export * from './models/parameter-type.js';
 export * from './models/request.js';
 export * from './models/response.js';
 export * from './models/route-response-callback.js';
+export * from './models/stub-handle.js';
+export * from './models/stub.js';
