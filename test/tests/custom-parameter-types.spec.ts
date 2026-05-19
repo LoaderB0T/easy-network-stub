@@ -32,17 +32,17 @@ describe('Custom Parameter Types', () => {
       a => `myId:${a.toLowerCase()}`
     );
 
-    testEasyNetworkStub.stub('GET', 'posts/all/{id:guid}', ({ params }) => {
+    testEasyNetworkStub.stub('GET', 'posts/all/{id:string}', ({ params }) => {
+      return { id: params.id };
+    });
+    testEasyNetworkStub.stub('GET', 'posts/all/{id:specialId}', ({ params }) => {
       return { id: params.id };
     });
     testEasyNetworkStub.stub('GET', 'posts/notCalled/{id:guid}', ({ params }) => {
       params.id.canHaveAnyProperty = 1; // No compiler error here, because of any type
       return {};
     });
-    testEasyNetworkStub.stub('GET', 'posts/all/{id:specialId}', ({ params }) => {
-      return { id: params.id };
-    });
-    testEasyNetworkStub.stub('GET', 'posts/all/{id:string}', ({ params }) => {
+    testEasyNetworkStub.stub('GET', 'posts/all/{id:guid}', ({ params }) => {
       return { id: params.id };
     });
 
@@ -87,13 +87,13 @@ describe('Custom Parameter Types', () => {
       params.id.canHaveAnyProperty = 1; // No compiler error here, because of any type
       return {};
     });
-    testEasyNetworkStub.stub('GET', 'posts/all?{id:guid}', ({ params }) => {
+    testEasyNetworkStub.stub('GET', 'posts/all?{id:string}', ({ params }) => {
       return { id: params.id };
     });
     testEasyNetworkStub.stub('GET', 'posts/all?{id:specialId}', ({ params }) => {
       return { id: params.id };
     });
-    testEasyNetworkStub.stub('GET', 'posts/all?{id:string}', ({ params }) => {
+    testEasyNetworkStub.stub('GET', 'posts/all?{id:guid}', ({ params }) => {
       return { id: params.id };
     });
 
@@ -119,7 +119,7 @@ describe('Custom Parameter Types', () => {
     expect(response3.id).toBe('94a*8fd2');
   });
 
-  test('ROUTE: First stub is evaluated first', async () => {
+  test('ROUTE: Last stub is evaluated first', async () => {
     testEasyNetworkStub.addParameterType(
       'guid',
       '([a-zA-Z0-9]{8}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{12})',
@@ -134,13 +134,13 @@ describe('Custom Parameter Types', () => {
       a => `myId:${a.toLowerCase()}`
     );
 
-    testEasyNetworkStub.stub('GET', 'posts/all/{id:string}', ({ params }) => {
+    testEasyNetworkStub.stub('GET', 'posts/all/{id:specialId}', ({ params }) => {
       return { id: params.id };
     });
     testEasyNetworkStub.stub('GET', 'posts/all/{id:guid}', ({ params }) => {
       return { id: params.id };
     });
-    testEasyNetworkStub.stub('GET', 'posts/all/{id:specialId}', ({ params }) => {
+    testEasyNetworkStub.stub('GET', 'posts/all/{id:string}', ({ params }) => {
       return { id: params.id };
     });
 

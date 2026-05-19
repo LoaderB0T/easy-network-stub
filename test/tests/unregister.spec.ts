@@ -34,15 +34,15 @@ describe('Unregister', () => {
       method: 'GET',
       url: 'MyServer/api/Blog/posts/all',
     });
-    expect(response2).toBe(1);
+    expect(response2).toBe(2);
 
-    handle1.unregister();
+    handle2.unregister();
 
     const response3 = await parseFetch(fakeNetwork, {
       method: 'GET',
       url: 'MyServer/api/Blog/posts/all',
     });
-    expect(response3).toBe(2);
+    expect(response3).toBe(1);
   });
 
   test('Handle: unregister all', async () => {

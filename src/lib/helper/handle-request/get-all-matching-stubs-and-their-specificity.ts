@@ -8,6 +8,7 @@ export const getAllMatchingStubsAndTheirSpecificity = (
   reasonsForNotMatching: string[]
 ) => {
   return stubs
+    .toReversed() // latest registered stubs have highest priority
     .map(stub => {
       if (!urlWithoutQueryParams.match(stub.regx)) {
         return false;

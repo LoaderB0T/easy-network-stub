@@ -33,11 +33,11 @@ Also, when you are prototyping a new feature, you might want to mock a whole API
 
 ✅ Supports EventSource & ndjson
 
-✅ Supports WebSockets (beta)
+✅ Supports WebSockets
 
-✅ No production dependencies (You need to have playwright installed, of course)
+✅ No production dependencies
 
-✅ ESM & CJS exports
+✅ ESM exports
 
 The primary use case for this package is to create a mock server for your tests so that they do not need real network requests.
 
