@@ -164,6 +164,9 @@ export class EasyNetworkStub {
     };
   }
 
+  /**
+   * Unregister all stubs registered to this interceptor.
+   */
   public unregisterAll() {
     this._config.stubs = [];
   }
