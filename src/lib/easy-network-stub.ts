@@ -7,6 +7,7 @@ import { HttpMethod } from './models/http-method.js';
 import { InitConfig } from './models/init-config.js';
 import { ParamMatcher, ParamType } from './models/parameter-type.js';
 import { QueryParam } from './models/query-param.js';
+import { Request } from './models/request.js';
 import { RouteParam } from './models/route-param.js';
 import { RouteResponseCallback } from './models/route-response-callback.js';
 import { StubHandle } from './models/stub-handle.js';
@@ -14,6 +15,7 @@ import { Stub } from './models/stub.js';
 
 export class EasyNetworkStub {
   private readonly _urlMatch: string | RegExp;
+  private _retired = false;
   private readonly _config: Config = {
     stubs: [],
     errorLogger: error => {
@@ -54,19 +56,46 @@ export class EasyNetworkStub {
   }
 
   /**
+   * Mark this stub as retired so that any in-flight responses are silently dropped.
+   * Call this before unrouting to avoid "route already handled" errors from delayed stubs.
+   */
+  public retire() {
+    this._retired = true;
+  }
+
+  /**
    * Call this in your beforeEach hook to start using the stub.
    */
   protected initInternal<T>(config: InitConfig<T>): T {
+    this._retired = false;
     this._config.failer = config.failer;
     this._config.errorLogger = config.errorLogger ?? this._config.errorLogger;
 
     return config.interceptor(this._urlMatch, async req => {
-      if (req.method.toUpperCase() === 'OPTIONS') {
-        await req.reply({ statusCode: 200, headers: preflightHeaders });
+      if (this._retired) {
         return;
       }
 
-      const responseResult = await tryGetResponseForRequest(req, this._config);
+      const guardedReq: Request = {
+        ...req,
+        reply: response => {
+          if (!this._retired) {
+            return req.reply(response);
+          }
+        },
+        destroy: () => {
+          if (!this._retired) {
+            req.destroy();
+          }
+        },
+      };
+
+      if (guardedReq.method.toUpperCase() === 'OPTIONS') {
+        await guardedReq.reply({ statusCode: 200, headers: preflightHeaders });
+        return;
+      }
+
+      const responseResult = await tryGetResponseForRequest(guardedReq, this._config);
 
       if (responseResult.closed) {
         return;
@@ -77,11 +106,11 @@ export class EasyNetworkStub {
         : responseResult.response;
 
       if (response instanceof CustomResponseHandler) {
-        await response.handle(req);
+        await response.handle(guardedReq);
         return;
       }
 
-      await req.reply({ statusCode: 200, body: response, headers });
+      await guardedReq.reply({ statusCode: 200, body: response, headers });
 
       return response;
     });
